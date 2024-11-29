@@ -1,0 +1,42 @@
+{
+  "name": "next-intl-scanner",
+  "version": "1.0.0",
+  "description": "A tool to extract and manage translations from Next.js projects using next-intl",
+  "author": {
+    "name": "Mohamed Ali",
+    "email": "mohamedali0887@gmail.com"
+  },
+  "keywords": [
+    "next",
+    "next.js",
+    "next-intl",
+    "i18n",
+    "l10n",
+    "translation",
+    "scanner"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "glob": "^11.0.0",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.7.2"
+  },
+  "bin": {
+    "next-intl-scanner": "./dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "tsx": "^4.19.2"
+  }
+}
