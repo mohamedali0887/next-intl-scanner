@@ -2,19 +2,17 @@ import { it, describe, expect, afterAll, jest } from "@jest/globals";
 import fs from "fs";
 import { exec } from "child_process";
 import path from "path";
-import { rimraf } from "rimraf";
+import { rimraf, rimrafSync } from "rimraf";
 
 describe("CLI", () => {
-  const cliPath = path.resolve(__dirname, "cli.ts");
+  const cliPath = path.resolve(process.cwd(), "dist" + "/cli.js");
   let testFolderPath = path.resolve(process.cwd(), "_test/");
 
-  afterAll(async () => {
-    console.log("done , cleaning up ", `${testFolderPath}/messages`);
-    await rimraf(`${testFolderPath}/messages`);
-  });
+  console.log("testFolderPath", testFolderPath);
+  console.log("cliPath", cliPath);
 
   it("should display the correct version", (done) => {
-    exec(`tsx ${cliPath} next-intl-scanner --version`, (error, stdout) => {
+    exec(`node ${cliPath} next-intl-scanner --version`, (error, stdout) => {
       expect(error).toBeNull();
       expect(stdout.trim()).toBe(require("../package.json").version);
       done();
@@ -22,7 +20,7 @@ describe("CLI", () => {
   });
 
   it("should display help for extract command", (done) => {
-    exec(`tsx ${cliPath} next-intl-scanner --help`, (error, stdout) => {
+    exec(`node ${cliPath} next-intl-scanner --help`, (error, stdout) => {
       expect(error).toBeNull();
       expect(stdout).toContain(
         "Extracts and merges translations for Next.js applications using react-intl"
@@ -32,7 +30,7 @@ describe("CLI", () => {
   });
 
   it("should log error if config file is not found", (done) => {
-    exec(`tsx ${cliPath} extract`, (error, stdout) => {
+    exec(`node ${cliPath} extract`, (error, stdout) => {
       expect(stdout).toContain("Default Configuration file does not exist");
       done();
     });
@@ -40,7 +38,7 @@ describe("CLI", () => {
 
   it("should log error if config file is not found, in case custom config file is provided", (done) => {
     exec(
-      `tsx ${cliPath} extract --config non-existent-config.json`,
+      `node ${cliPath} extract --config non-existent-config.json`,
       (error, stdout) => {
         expect(stdout).toContain("Configuration file does not exist");
         done();
@@ -50,7 +48,7 @@ describe("CLI", () => {
 
   it("should log error if config file is not valid", (done) => {
     exec(
-      `tsx ${cliPath} extract --config ./_test/invalid.config.cjs`,
+      `node ${cliPath} extract --config ./_test/invalid.config.cjs`,
       (error, stdout) => {
         expect(stdout).toContain("Failed to validate configuration");
         done();
@@ -60,20 +58,9 @@ describe("CLI", () => {
 
   it("should process the translations with custom cjs", (done) => {
     exec(
-      `tsx ${cliPath} extract --config ./_test/valid.config.cjs`,
+      `node ${cliPath} extract --config ./_test/valid.config.cjs`,
       (error, stdout) => {
-        expect(stdout).toContain("Extracting translations...");
-
-        done();
-      }
-    );
-  });
-
-  it("should process the translations with custom json", (done) => {
-    exec(
-      `tsx ${cliPath} extract --config ./_test/valid.config.json`,
-      (error, stdout) => {
-        expect(stdout).toContain("Extracting translations...");
+        expect(stdout).toContain("Translations extracted successfully");
 
         done();
       }
@@ -105,5 +92,22 @@ describe("CLI", () => {
       expect(parsedData.common["Ignore"]).toBeUndefined();
       done();
     });
+  });
+
+  it("should process the translations with custom json", (done) => {
+    exec(
+      `node ${cliPath} extract --config ./_test/valid.config.json`,
+      (error, stdout) => {
+        expect(stdout).toContain("Translations extracted successfully");
+
+        done();
+      }
+    );
+  });
+
+  afterAll(async () => {
+    console.log("done , cleaning up ", `${testFolderPath}/messages`);
+    const done = await rimrafSync(`${testFolderPath}/messages/`);
+    console.log("done", done);
   });
 });

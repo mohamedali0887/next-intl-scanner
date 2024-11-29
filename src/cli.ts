@@ -4,8 +4,7 @@ import { Command } from "commander";
 
 import extractTranslations from "./utils/extractTranslations";
 
-import pkg from "../package.json";
-
+import pkg from "../package.json" assert { type: "json" };
 const program = new Command();
 
 program

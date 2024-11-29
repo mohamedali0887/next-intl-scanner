@@ -1,16 +1,31 @@
 {
   "compilerOptions": {
     "target": "ES6",
-    "outDir": "./dist",
-    "lib": ["ES6"],
-    "types": ["node"],
     "module": "ESNext",
     "moduleResolution": "node",
+    "baseUrl": "./",
+
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "lib": ["ES6"],
+    "types": ["node"],
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "allowJs": true
+    "allowJs": true,
+
+    "paths": {
+      "*": ["src/*"]
+    }
+  },
+  "tsc-alias": {
+    "verbose": false,
+    "resolveFullPaths": true,
+    "fileExtensions": {
+      "inputGlob": "{js,jsx,mjs,json}",
+      "outputCheck": ["js", "json", "jsx", "mjs"]
+    }
   },
   "include": ["src/**/*"],
 
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "**/*.test.ts"]
 }

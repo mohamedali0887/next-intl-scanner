@@ -1,6 +1,6 @@
 {
   "name": "next-intl-scanner",
-  "version": "1.0.1",
+  "version": "1.0.5",
   "description": "A tool to extract and manage translations from Next.js projects using next-intl",
   "type": "module",
   "author": {
@@ -18,8 +18,7 @@
     "extractor"
   ],
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc -w",
+    "build": "tsc && tsc-alias",
     "test": "jest"
   },
   "license": "MIT",
@@ -34,7 +33,6 @@
   "bin": {
     "next-intl-scanner": "./dist/cli.js"
   },
-  "main": "dist/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/mohamedali0887/next-intl-scanner.git"

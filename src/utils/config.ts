@@ -49,6 +49,17 @@ export const validateConfig = (config: Config): boolean => {
   return true;
 };
 
+const importFile = async (url: string) => {
+  let config: Config;
+  if (url.endsWith(".json")) {
+    config = (await import(url, { assert: { type: "json" } })).default;
+  } else {
+    config = (await import(url)).default;
+  }
+
+  return config;
+};
+
 export const loadConfig = async (
   configPath: string,
   custom: boolean = false
@@ -66,7 +77,8 @@ export const loadConfig = async (
       }
       // Convert the path to a file URL
       const configUrl = pathToFileURL(configPath).href;
-      config = (await import(configUrl)).default;
+
+      config = await importFile(configUrl);
     } else {
       //first find .json , if not found then find .cjs
       const isJson = fs.existsSync(configPath + ".json");
@@ -83,9 +95,7 @@ export const loadConfig = async (
         isJson ? configPath + ".json" : configPath + ".cjs"
       ).href;
 
-      //can we import this as a module ?
-
-      config = (await import(configUrl)).default;
+      config = await importFile(configUrl);
     }
 
     parsedConfig = { ...defaultConfig, ...(config as unknown as Config) };
