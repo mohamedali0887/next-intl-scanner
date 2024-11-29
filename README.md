@@ -1,6 +1,6 @@
 # next-intl-scanner
 
-A tool to extract and manage internationalization messages from Next.js projects.
+A tool to extract and manage internationalization messages from Next.js projects using [next-intl](https://github.com/amannn/next-intl) package
 
 ## Installation
 
@@ -13,6 +13,12 @@ npm install next-intl-scanner
 ```bash
 npx next-intl-scanner [options]
 ```
+
+## Options
+
+- `--config` - Path to the configuration file
+- `--help` - Display help message
+- `--version` - Display version number
 
 ## Configuration
 
@@ -35,9 +41,3 @@ The tool can be configured using a `next-intl-scanner.config.js` or
   ignore: ["**/node_modules/**", "**/.next/**"], // glob pattern to ignore directories
 };
 ```
-
-## Options
-
-- `--config` - Path to the configuration file
-- `--help` - Display help message
-- `--version` - Display version number
