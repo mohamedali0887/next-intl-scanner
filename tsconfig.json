@@ -1,13 +1,16 @@
 {
   "compilerOptions": {
-    "jsx": "react",
-    "allowJs": true,
     "target": "ES6",
+    "outDir": "./dist",
+    "lib": ["ES6"],
+    "types": ["node"],
     "module": "ESNext",
     "moduleResolution": "node",
-    "outDir": "./dist",
     "esModuleInterop": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "allowJs": true
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*"],
+
+  "exclude": ["node_modules"]
 }

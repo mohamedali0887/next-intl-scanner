@@ -50,7 +50,7 @@ describe("CLI", () => {
 
   it("should log error if config file is not valid", (done) => {
     exec(
-      `tsx ${cliPath} extract --config ./_test/invalid.config.js`,
+      `tsx ${cliPath} extract --config ./_test/invalid.config.cjs`,
       (error, stdout) => {
         expect(stdout).toContain("Failed to validate configuration");
         done();
@@ -58,9 +58,20 @@ describe("CLI", () => {
     );
   });
 
-  it("should process the translations", (done) => {
+  it("should process the translations with custom cjs", (done) => {
     exec(
-      `tsx ${cliPath} extract --config ./_test/valid.config.js`,
+      `tsx ${cliPath} extract --config ./_test/valid.config.cjs`,
+      (error, stdout) => {
+        expect(stdout).toContain("Extracting translations...");
+
+        done();
+      }
+    );
+  });
+
+  it("should process the translations with custom json", (done) => {
+    exec(
+      `tsx ${cliPath} extract --config ./_test/valid.config.json`,
       (error, stdout) => {
         expect(stdout).toContain("Extracting translations...");
 

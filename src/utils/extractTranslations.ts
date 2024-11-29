@@ -5,7 +5,7 @@ import Logger from "./logger";
 import { loadConfig } from "./config";
 import type { Config, DefaultOptions } from "./types";
 
-export const extractTranslations = async (options: DefaultOptions = {}) => {
+const extractTranslations = async (options: DefaultOptions = {}) => {
   let configPath = path.resolve(process.cwd(), "next-intl-scanner.config");
 
   if (options.config) {
@@ -116,3 +116,5 @@ export const extractTranslations = async (options: DefaultOptions = {}) => {
 
   Logger.success("Translations extracted successfully");
 };
+
+export default extractTranslations;

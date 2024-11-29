@@ -1,12 +1,13 @@
 // #!/usr/bin/env node
 
 import { Command } from "commander";
-import { extractTranslations } from "./utils/extract";
+
+import extractTranslations from "./utils/extractTranslations";
 
 import pkg from "../package.json";
 
 const program = new Command();
-// eslint-disable-next-line prettier/prettier
+
 program
   .name("next-intl-scanner")
   .description(
@@ -23,7 +24,7 @@ program
     "after",
     `
 Examples:
-  $ next-intl-scanner extract 
+  $ next-intl-scanner extract
   `
   )
   .action(async (options) => {

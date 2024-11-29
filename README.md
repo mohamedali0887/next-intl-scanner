@@ -22,7 +22,7 @@ npx next-intl-scanner [options]
 
 ## Configuration
 
-The tool can be configured using a `next-intl-scanner.config.js` or
+The tool can be configured using a `next-intl-scanner.config.cjs` or
 `next-intl-scanner.config.json`file in the root of the project. The configuration file should export an object with the following properties:
 
 ```javascript

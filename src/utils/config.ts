@@ -67,11 +67,11 @@ export const loadConfig = async (
       // Convert the path to a file URL
       const configUrl = pathToFileURL(configPath).href;
       config = (await import(configUrl)).default;
-
-      //first find .json , if not found then find .js
     } else {
+      //first find .json , if not found then find .cjs
       const isJson = fs.existsSync(configPath + ".json");
-      const isJs = fs.existsSync(configPath + ".js");
+      const isJs = fs.existsSync(configPath + ".cjs");
+
       if (!isJson && !isJs) {
         Logger.error(
           "Default Configuration file does not exist , please create  next-intl-scanner.config.js or next-intl-scanner.config.json in your project root"
@@ -80,8 +80,11 @@ export const loadConfig = async (
       }
 
       const configUrl = pathToFileURL(
-        isJson ? configPath + ".json" : configPath + ".js"
+        isJson ? configPath + ".json" : configPath + ".cjs"
       ).href;
+
+      //can we import this as a module ?
+
       config = (await import(configUrl)).default;
     }
 
