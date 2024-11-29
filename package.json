@@ -36,11 +36,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Code-Craze/next-intl-scanner.git"
+    "url": "https://github.com/mohamedali0887/next-intl-scanner.git"
   },
-  "homepage": "https://github.com/Code-Craze/next-intl-scanner#readme",
+  "homepage": "https://github.com/mohamedali0887/next-intl-scanner#readme",
   "bugs": {
-    "url": "https://github.com/Code-Craze/next-intl-scanner/issues"
+    "url": "https://github.com/mohamedali0887/next-intl-scanner/issues"
   },
   "engines": {
     "node": ">=14.0.0"
