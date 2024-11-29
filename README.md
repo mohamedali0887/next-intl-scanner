@@ -11,12 +11,12 @@ npm install next-intl-scanner
 ## Usage
 
 ```bash
-npx next-intl-scanner [options]
+npx next-intl-scanner extract [options]
 ```
 
 ## Options
 
-- `--config` - Path to the configuration file
+- `--config` - Optional : Path to the configuration file if the file is not in the root of the project
 - `--help` - Display help message
 - `--version` - Display version number
 
