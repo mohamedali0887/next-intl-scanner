@@ -60,10 +60,17 @@ const extractTranslations = async (options: DefaultOptions = {}) => {
         ? nameSpaceMatch[0].replace(/\buseTranslations\(['"](.+?)['"]\)/, "$1")
         : config.defaultNamespace;
 
-    const translations = source.match(/\bt\(['"](.+?)['"]\)/g);
+    const regex = /\bt\s*\(\s*(['"`])([^'"`]+?)\1/g;
 
-    if (nameSpace && translations && translations.length) {
-      translations.forEach((t: string) => {
+    let match;
+    const translations = {};
+
+    while ((match = regex.exec(source)) !== null) {
+      translations[match[2]] = match[2];
+    }
+
+    if (nameSpace && translations && Object.keys(translations).length) {
+      Object.keys(translations).forEach((t: string) => {
         const string = t.replace(/\bt\(['"](.+?)['"]\)/, "$1");
         allTranslations.push(`${nameSpace}.${string}`);
       });

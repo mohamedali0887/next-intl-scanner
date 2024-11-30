@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
-    "target": "ES6",
+    "target": "es2023",
     "module": "ESNext",
     "moduleResolution": "node",
     "baseUrl": "./",
 
     "outDir": "./dist",
     "rootDir": "./src",
-    "lib": ["ES6"],
+    "lib": ["es2023"],
     "types": ["node"],
     "esModuleInterop": true,
     "resolveJsonModule": true,

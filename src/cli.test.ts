@@ -2,14 +2,11 @@ import { it, describe, expect, afterAll, jest } from "@jest/globals";
 import fs from "fs";
 import { exec } from "child_process";
 import path from "path";
-import { rimraf, rimrafSync } from "rimraf";
+import { rimrafSync } from "rimraf";
 
 describe("CLI", () => {
   const cliPath = path.resolve(process.cwd(), "dist" + "/cli.js");
   let testFolderPath = path.resolve(process.cwd(), "_test/");
-
-  console.log("testFolderPath", testFolderPath);
-  console.log("cliPath", cliPath);
 
   it("should display the correct version", (done) => {
     exec(`node ${cliPath} next-intl-scanner --version`, (error, stdout) => {
@@ -76,6 +73,7 @@ describe("CLI", () => {
       );
       const parsedData = JSON.parse(data);
 
+      console.log(parsedData);
       expect(parsedData.common["Hello Test!"]).toContain("Hello Test!");
       expect(parsedData.common["Ignore"]).toBeUndefined();
       done();
@@ -89,6 +87,16 @@ describe("CLI", () => {
       const parsedData = JSON.parse(data);
 
       expect(parsedData.common["Hello Test!"]).toContain("Hello Test!");
+      expect(parsedData.common["Insert text directly"]).toContain(
+        "Insert text directly"
+      );
+      expect(
+        parsedData.common[
+          "Hello, {name}! You can use this tool to extract strings for {package}"
+        ]
+      ).toContain(
+        "Hello, {name}! You can use this tool to extract strings for {package}"
+      );
       expect(parsedData.common["Ignore"]).toBeUndefined();
       done();
     });
@@ -106,8 +114,8 @@ describe("CLI", () => {
   });
 
   afterAll(async () => {
-    console.log("done , cleaning up ", `${testFolderPath}/messages`);
-    const done = await rimrafSync(`${testFolderPath}/messages/`);
-    console.log("done", done);
+    console.log("Cleaning up ", `${testFolderPath}/messages`);
+    await rimrafSync(`${testFolderPath}/messages/`);
+    console.log("Done");
   });
 });
