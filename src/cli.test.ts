@@ -73,7 +73,6 @@ describe("CLI", () => {
       );
       const parsedData = JSON.parse(data);
 
-      console.log(parsedData);
       expect(parsedData.common["Hello Test!"]).toContain("Hello Test!");
       expect(parsedData.common["Ignore"]).toBeUndefined();
       done();
