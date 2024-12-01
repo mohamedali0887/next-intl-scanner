@@ -1,6 +1,6 @@
 {
   "name": "next-intl-scanner",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "A tool to extract and manage translations from Next.js projects using next-intl",
   "type": "module",
   "author": {

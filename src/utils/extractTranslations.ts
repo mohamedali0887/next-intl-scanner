@@ -95,7 +95,6 @@ const extractTranslations = async (options: DefaultOptions = {}) => {
   //now lets map it to an object
   const translationsObject: any = {};
 
-  console.log(allTranslations);
   for (const translation of allTranslations) {
     const { nameSpace, string } = translation;
 
@@ -109,7 +108,6 @@ const extractTranslations = async (options: DefaultOptions = {}) => {
       translationsObject[string] = string;
     }
   }
-  console.log(translationsObject);
 
   // now lets write the translations to the output directory
   // if the output directory does not exist we need to create it
