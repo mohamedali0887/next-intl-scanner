@@ -52,7 +52,13 @@ export const validateConfig = (config: Config): boolean => {
 const importFile = async (url: string) => {
   let config: Config;
   if (url.endsWith(".json")) {
-    config = (await import(url, { assert: { type: "json" } })).default;
+    //make the url relative to the working directory
+
+    config = JSON.parse(
+      fs.readFileSync(url, {
+        encoding: "utf-8",
+      })
+    );
   } else {
     config = (await import(url)).default;
   }
@@ -76,7 +82,10 @@ export const loadConfig = async (
         return null;
       }
       // Convert the path to a file URL
-      const configUrl = pathToFileURL(configPath).href;
+
+      const configUrl = configPath.endsWith(".cjs")
+        ? pathToFileURL(configPath).href
+        : configPath;
 
       config = await importFile(configUrl);
     } else {
