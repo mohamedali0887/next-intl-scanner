@@ -25,7 +25,6 @@ The tool can be configured using a `next-intl-scanner.config.cjs` or `next-intl-
 ```javascript
 {
   locales: ["en", "ar"], // Array of locales used in i18n.t
-  defaultNamespace: "common", // Default namespace used if useTranslations hook is used without a namespace
   sourceDirectory: "./", // Directory to scan for i18n keys
   outputDirectory: "./messages", // Directory for generated JSON files
   pages: [
@@ -43,22 +42,19 @@ The tool can be configured using a `next-intl-scanner.config.cjs` or `next-intl-
 1. **`locales`**:  
    An array of locale strings (e.g., `["en", "ar"]`). These represent the languages used in the project.
 
-2. **`defaultNamespace`**:  
-   A string representing the default namespace to use when the `useTranslations()` hook is called without a namespace.
-
-3. **`sourceDirectory`**:  
+2. **`sourceDirectory`**:  
    The root directory where the tool will search for internationalization keys.
 
-4. **`outputDirectory`**:  
+3. **`outputDirectory`**:  
    The directory where the extracted message JSON files will be saved.
 
-5. **`pages`**:  
+4. **`pages`**:  
    An array of objects containing the following properties:
 
    - `match`: A glob pattern to specify which files to scan for translation keys.
    - `ignore`: A glob pattern to specify which files to exclude from scanning.
 
-6. **`ignore`**:  
+5. **`ignore`**:  
    An array of glob patterns that define directories or files to ignore during the scan.
 
 ## Usage
@@ -78,7 +74,6 @@ Create a configuration file named `next-intl-scanner.config.cjs` in the root of 
 ```javascript
 module.exports = {
   locales: ["en", "ar"], // Supported locales
-  defaultNamespace: "common", // Default namespace for useTranslations()
   sourceDirectory: "./", // Directory to scan
   outputDirectory: "./messages", // Directory to save the extracted JSON files
   pages: [
