@@ -1,6 +1,5 @@
 module.exports = {
   locales: "invalid value",
-  defaultNamespace: "common",
   sourceDirectory: "./",
   outputDirectory: "./messages",
   pages: [

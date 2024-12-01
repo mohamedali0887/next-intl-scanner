@@ -8,7 +8,6 @@ export type Config = {
   sourceDirectory: string;
   outputDirectory: string;
   defaultLocale: string;
-  defaultNamespace: string;
   pages: {
     match: string;
     ignore: string[];

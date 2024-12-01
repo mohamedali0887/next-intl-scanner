@@ -5,7 +5,6 @@ import type { Config } from "./types";
 
 export const defaultConfig: Config = {
   locales: ["en"],
-  defaultNamespace: "common",
   sourceDirectory: "./",
   outputDirectory: "./messages",
   defaultLocale: "en",

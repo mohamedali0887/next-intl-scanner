@@ -43,7 +43,10 @@ const extractTranslations = async (options: DefaultOptions = {}) => {
     allFiles.push(...files);
   }
 
-  const allTranslations: string[] = [];
+  const allTranslations: {
+    nameSpace: string;
+    string: string;
+  }[] = [];
 
   //then we need to extract the translations from each file
 
@@ -58,7 +61,7 @@ const extractTranslations = async (options: DefaultOptions = {}) => {
     const nameSpace: string =
       nameSpaceMatch && nameSpaceMatch.length
         ? nameSpaceMatch[0].replace(/\buseTranslations\(['"](.+?)['"]\)/, "$1")
-        : config.defaultNamespace;
+        : "";
 
     const regex = /\bt\s*\(\s*(['"`])([^'"`]+?)\1/g;
 
@@ -69,10 +72,22 @@ const extractTranslations = async (options: DefaultOptions = {}) => {
       translations[match[2]] = match[2];
     }
 
-    if (nameSpace && translations && Object.keys(translations).length) {
+    if (translations && Object.keys(translations).length) {
       Object.keys(translations).forEach((t: string) => {
         const string = t.replace(/\bt\(['"](.+?)['"]\)/, "$1");
-        allTranslations.push(`${nameSpace}.${string}`);
+        if (nameSpace) {
+          //escape the string
+
+          allTranslations.push({
+            nameSpace,
+            string,
+          });
+        } else {
+          allTranslations.push({
+            nameSpace: "",
+            string,
+          });
+        }
       });
     }
   }
@@ -80,13 +95,21 @@ const extractTranslations = async (options: DefaultOptions = {}) => {
   //now lets map it to an object
   const translationsObject: any = {};
 
+  console.log(allTranslations);
   for (const translation of allTranslations) {
-    const [nameSpace, key] = translation.split(".");
-    if (!translationsObject[nameSpace]) {
-      translationsObject[nameSpace] = {};
+    const { nameSpace, string } = translation;
+
+    if (nameSpace.length > 0) {
+      if (!translationsObject[nameSpace]) {
+        translationsObject[nameSpace] = {};
+      }
+
+      translationsObject[nameSpace][string] = string;
+    } else {
+      translationsObject[string] = string;
     }
-    translationsObject[nameSpace][key] = key;
   }
+  console.log(translationsObject);
 
   // now lets write the translations to the output directory
   // if the output directory does not exist we need to create it
@@ -101,17 +124,17 @@ const extractTranslations = async (options: DefaultOptions = {}) => {
         ? JSON.parse(fs.readFileSync(localeFile, "utf-8"))
         : {};
 
-      for (const nameSpace of Object.keys(translationsObject)) {
-        if (!localeTranslations[nameSpace]) {
-          localeTranslations[nameSpace] = {};
-        }
+      for (const translation of allTranslations) {
+        const { nameSpace, string } = translation;
 
-        for (const key of Object.keys(translationsObject[nameSpace])) {
-          //if the key does not exist in the locale file we add it
-          if (!localeTranslations[nameSpace][key]) {
-            localeTranslations[nameSpace][key] =
-              translationsObject[nameSpace][key];
+        if (nameSpace.length > 0) {
+          if (!localeTranslations[nameSpace]) {
+            localeTranslations[nameSpace] = {};
           }
+
+          localeTranslations[nameSpace][string] = string;
+        } else {
+          localeTranslations[string] = string;
         }
       }
 

@@ -73,30 +73,39 @@ describe("CLI", () => {
       );
       const parsedData = JSON.parse(data);
 
-      expect(parsedData.common["Hello Test!"]).toContain("Hello Test!");
-      expect(parsedData.common["Ignore"]).toBeUndefined();
+      expect(parsedData["Hello Test!"]).toContain("Hello Test!");
+      expect(parsedData.customNamespace["Hello Namespace!"]).toContain(
+        "Hello Namespace!"
+      );
+
+      expect(parsedData["Ignore"]).toBeUndefined();
       done();
     });
 
     exec(`cat ~${testFolderPath}/messages/ar.json`, async (error, stdout) => {
       const data = await fs.readFileSync(
-        `${testFolderPath}/messages/en.json`,
+        `${testFolderPath}/messages/ar.json`,
         "utf-8"
       );
       const parsedData = JSON.parse(data);
 
-      expect(parsedData.common["Hello Test!"]).toContain("Hello Test!");
-      expect(parsedData.common["Insert text directly"]).toContain(
+      expect(parsedData["Hello Test!"]).toContain("Hello Test!");
+      expect(parsedData["Insert text directly"]).toContain(
         "Insert text directly"
       );
       expect(
-        parsedData.common[
+        parsedData[
           "Hello, {name}! You can use this tool to extract strings for {package}"
         ]
       ).toContain(
         "Hello, {name}! You can use this tool to extract strings for {package}"
       );
-      expect(parsedData.common["Ignore"]).toBeUndefined();
+
+      expect(parsedData.customNamespace["Hello Namespace!"]).toContain(
+        "Hello Namespace!"
+      );
+
+      expect(parsedData["Ignore"]).toBeUndefined();
       done();
     });
   });

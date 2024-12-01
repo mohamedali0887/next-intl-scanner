@@ -1,6 +1,5 @@
 module.exports = {
   locales: ["en", "ar"], // array of locales used in i18n.t
-  defaultNamespace: "common", // default namespace used  if useTranslations hook is used without namespace ( useTranslations())
   sourceDirectory: "./", // source directory to scan for i18n keys
   outputDirectory: "./messages", // output directory for generated json files
   pages: [
