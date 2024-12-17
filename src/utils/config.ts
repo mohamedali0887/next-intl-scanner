@@ -82,11 +82,7 @@ export const loadConfig = async (
       }
       // Convert the path to a file URL
 
-      const configUrl = configPath.endsWith(".cjs")
-        ? pathToFileURL(configPath).href
-        : configPath;
-
-      config = await importFile(configUrl);
+      config = await importFile(configPath);
     } else {
       //first find .json , if not found then find .cjs
       const isJson = fs.existsSync(configPath + ".json");

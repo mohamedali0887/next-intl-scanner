@@ -66,7 +66,7 @@ const extractTranslations = async (options: DefaultOptions = {}) => {
     const regex = /\bt\s*\(\s*(['"`])([^'"`]+?)\1/g;
 
     let match;
-    const translations = {};
+    const translations: { [key: string]: string } = {};
 
     while ((match = regex.exec(source)) !== null) {
       translations[match[2]] = match[2];

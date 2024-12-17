@@ -1,21 +1,13 @@
 {
   "compilerOptions": {
-    "target": "es2023",
-    "module": "ESNext",
-    "moduleResolution": "node",
-    "baseUrl": "./",
-
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "lib": ["es2023"],
-    "types": ["node"],
+    "target": "ES2022",
+    "module": "CommonJS",
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "allowJs": true,
-
-    "paths": {
-      "*": ["src/*"]
-    }
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "outDir": "./dist",
+    "importHelpers": false
   },
   "tsc-alias": {
     "verbose": false,
