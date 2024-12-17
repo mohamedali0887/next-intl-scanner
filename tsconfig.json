@@ -7,6 +7,7 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "outDir": "./dist",
+    "rootDir": "./src",
     "importHelpers": false
   },
   "tsc-alias": {

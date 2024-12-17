@@ -1,9 +1,6 @@
 // #!/usr/bin/env node
 
 import { Command } from "commander";
-import { promises as fs } from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
 import extractTranslations from "./utils/extractTranslations";
 import pkg from "../package.json";
 const program = new Command();
