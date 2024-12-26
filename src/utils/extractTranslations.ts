@@ -155,8 +155,6 @@ const extractTranslations = async (options: DefaultOptions = {}) => {
           attributes[attributeName] = attributeValue;
         }
 
-        console.log("attributes", attributes);
-        // Log attributes if both `string` and `namespace` are found
         if (
           attributes[pattern.attributes.string] &&
           attributes[pattern.attributes.namespace]
