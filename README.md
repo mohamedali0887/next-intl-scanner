@@ -20,7 +20,7 @@ The following options can be used when running the tool:
 
 ## Configuration
 
-The tool can be configured using a `next-intl-scanner.config.cjs` or `next-intl-scanner.config.json` file in the root of the project. The configuration file should export an object with the following properties:
+The tool can be configured using a `next-intl-scanner.config.js` or `next-intl-scanner.config.json` file in the root of the project. The configuration file should export an object with the following properties:
 
 ```javascript
 {
@@ -69,7 +69,7 @@ npx next-intl-scanner extract [options]
 
 ### 1. Create a Configuration File
 
-Create a configuration file named `next-intl-scanner.config.cjs` in the root of your project with the following content:
+Create a configuration file named `next-intl-scanner.config.js` in the root of your project with the following content:
 
 ```javascript
 module.exports = {

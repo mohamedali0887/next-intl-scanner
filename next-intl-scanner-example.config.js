@@ -9,5 +9,15 @@ module.exports = {
       ignore: ["**/*.test.{js,jsx,ts,tsx}", "**/_*.js"], // glob pattern to ignore files
     },
   ],
+  customJSXPattern: [
+    {
+      element: "FormattedMessage", // JSX element name
+      attributes: {
+        namespace: "namespace", // attribute name to get namespace
+        string: "string", // attribute name to get id
+      },
+    },
+  ], // custom JSX components to scan
+
   ignore: ["**/node_modules/**", "**/.next/**"], // glob pattern to ignore directories
 };

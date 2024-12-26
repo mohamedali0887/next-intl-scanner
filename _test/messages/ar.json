@@ -1,0 +1,14 @@
+{
+  "Hello Test!": "Hello Test!",
+  "Insert text directly": "Insert text directly",
+  "Hello, {name}! You can use this tool to extract strings for {package}": "Hello, {name}! You can use this tool to extract strings for {package}",
+  "customNamespace": {
+    "Hello Namespace!": "Hello Namespace!"
+  },
+  "new namespace": {
+    "test string": "test string"
+  },
+  "Formatted message": {
+    "formatted string": "formatted string"
+  }
+}

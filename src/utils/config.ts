@@ -14,6 +14,7 @@ export const defaultConfig: Config = {
       ignore: ["**/*.test.{js,jsx,ts,tsx}", "**/_*.js"],
     },
   ],
+  customJSXPattern: [],
   ignore: ["**/node_modules/**", "**/.next/**", ".git/**"],
 };
 
@@ -84,9 +85,9 @@ export const loadConfig = async (
 
       config = await importFile(configPath);
     } else {
-      //first find .json , if not found then find .cjs
+      //first find .json , if not found then find .js
       const isJson = fs.existsSync(configPath + ".json");
-      const isJs = fs.existsSync(configPath + ".cjs");
+      const isJs = fs.existsSync(configPath + ".js");
 
       if (!isJson && !isJs) {
         Logger.error(
@@ -95,9 +96,7 @@ export const loadConfig = async (
         return null;
       }
 
-      const configUrl = pathToFileURL(
-        isJson ? configPath + ".json" : configPath + ".cjs"
-      ).href;
+      const configUrl = isJson ? configPath + ".json" : configPath + ".js";
 
       config = await importFile(configUrl);
     }

@@ -43,6 +43,43 @@ const extractTranslations = async (options: DefaultOptions = {}) => {
     allFiles.push(...files);
   }
 
+  //identify the custom patterns
+  const validCustomPatterns = config.customJSXPattern?.filter(
+    (customPattern) =>
+      customPattern.element &&
+      customPattern.attributes &&
+      customPattern.attributes.namespace &&
+      customPattern.attributes.string
+  );
+
+  const invalidCustomPatterns = config.customJSXPattern?.filter(
+    (customPattern) =>
+      !customPattern.element ||
+      !customPattern.attributes ||
+      !customPattern.attributes.namespace ||
+      !customPattern.attributes.string
+  );
+
+  if (validCustomPatterns.length > 0) {
+    Logger.info(
+      `Using custom JSX patterns: ${JSON.stringify(validCustomPatterns)}`
+    );
+
+    for (const customPattern of validCustomPatterns) {
+      Logger.info(
+        `expecting element: <${customPattern.element} ${customPattern.attributes.namespace}="exampleNamespace" ${customPattern.attributes.string}="exampleString">`
+      );
+    }
+  }
+
+  if (invalidCustomPatterns.length > 0) {
+    Logger.warn(
+      `Skipping invalid custom JSX patterns found: ${JSON.stringify(
+        invalidCustomPatterns
+      )}`
+    );
+  }
+
   const allTranslations: {
     nameSpace: string;
     string: string;
@@ -89,6 +126,50 @@ const extractTranslations = async (options: DefaultOptions = {}) => {
           });
         }
       });
+    }
+
+    for (const pattern of validCustomPatterns) {
+      // Match the whole tag with its attributes
+      const tagRegex = new RegExp(`<${pattern.element}[^>]*?>`, "g");
+      let match;
+
+      // Loop through all matches in the input
+      while ((match = tagRegex.exec(source)) !== null) {
+        const tag = match[0]; // Full tag with attributes
+
+        // Match individual attributes inside the tag
+        const attributeRegex = /(\w+)=\{(['"`])(.*?)\2\}/g;
+        let attributeMatch;
+
+        // Store attributes in an object to handle multiple attributes
+        const attributes: {
+          [key: string]: string;
+        } = {};
+
+        // Loop through all matches for attributes in the tag
+        while ((attributeMatch = attributeRegex.exec(tag)) !== null) {
+          const attributeName = attributeMatch[1]; // e.g., 'string', 'namespace'
+          const attributeValue = attributeMatch[3]; // e.g., 'Kanban Board'
+
+          // Store the attribute value in the attributes object
+          attributes[attributeName] = attributeValue;
+        }
+
+        console.log("attributes", attributes);
+        // Log attributes if both `string` and `namespace` are found
+        if (
+          attributes[pattern.attributes.string] &&
+          attributes[pattern.attributes.namespace]
+        ) {
+          const string = attributes[pattern.attributes.string];
+          const namespace = attributes[pattern.attributes.namespace];
+
+          allTranslations.push({
+            nameSpace: namespace,
+            string: string,
+          });
+        }
+      }
     }
   }
 

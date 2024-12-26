@@ -45,7 +45,7 @@ describe("CLI", () => {
 
   it("should log error if config file is not valid", (done) => {
     exec(
-      `node ${cliPath} extract --config ./_test/invalid.config.cjs`,
+      `node ${cliPath} extract --config ./_test/invalid.config.js`,
       (error, stdout) => {
         expect(stdout).toContain("Failed to validate configuration");
         done();
@@ -55,7 +55,7 @@ describe("CLI", () => {
 
   it("should process the translations with custom cjs", (done) => {
     exec(
-      `node ${cliPath} extract --config ./_test/valid.config.cjs`,
+      `node ${cliPath} extract --config ./_test/valid.config.js`,
       (error, stdout) => {
         expect(stdout).toContain("Translations extracted successfully");
 
@@ -121,9 +121,21 @@ describe("CLI", () => {
     );
   });
 
+  // check custom jsx component pattern
+  it("should process the translations with custom jsx pattern", (done) => {
+    exec(
+      `node ${cliPath} extract --config ./_test/valid.config.json`,
+      (error, stdout) => {
+        expect(stdout).toContain("Translations extracted successfully");
+
+        done();
+      }
+    );
+  });
+
   afterAll(async () => {
     console.log("Cleaning up ", `${testFolderPath}/messages`);
-    await rimrafSync(`${testFolderPath}/messages/`);
+    // await rimrafSync(`${testFolderPath}/messages/`);
     console.log("Done");
   });
 });
