@@ -83,6 +83,7 @@ const extractTranslations = async (options: DefaultOptions = {}) => {
   const allTranslations: {
     nameSpace: string;
     string: string;
+    message?: string;
   }[] = [];
 
   //then we need to extract the translations from each file
@@ -100,32 +101,88 @@ const extractTranslations = async (options: DefaultOptions = {}) => {
         ? nameSpaceMatch[0].replace(/\buseTranslations\(['"](.+?)['"]\)/, "$1")
         : "";
 
-    const regex = /\bt\s*\(\s*(['"`])([^'"`]+?)\1/g;
+    // Detect both standard hook usage (with optional args) and custom hook usage
+    const standardHookRegex = /\bt\s*\(\s*['"`]([^'"`]+?)['"`]/g;
+    const customHookRegex =
+      /\bt\s*\(\s*['"`]([^'"`]+?)['"`]\s*,\s*\{[^}]*\}\s*,\s*['"`]([^'"`]+?)['"`]/g;
 
     let match;
-    const translations: { [key: string]: string } = {};
+    const customHookKeys = new Set<string>();
 
-    while ((match = regex.exec(source)) !== null) {
-      translations[match[2]] = match[2];
+    // First check for custom hook usage (3 arguments)
+    while ((match = customHookRegex.exec(source)) !== null) {
+      const key = match[1];
+      const message = match[2];
+      if (nameSpace) {
+        allTranslations.push({
+          nameSpace,
+          string: key,
+          message,
+        });
+      } else {
+        allTranslations.push({
+          nameSpace: "",
+          string: key,
+          message,
+        });
+      }
+      customHookKeys.add(key);
     }
 
-    if (translations && Object.keys(translations).length) {
-      Object.keys(translations).forEach((t: string) => {
-        const string = t.replace(/\bt\(['"](.+?)['"]\)/, "$1");
+    // Then check for standard hook usage (1 or 2 arguments)
+    while ((match = standardHookRegex.exec(source)) !== null) {
+      const key = match[1];
+      // Only add if it's not already added by custom hook
+      if (!customHookKeys.has(key)) {
         if (nameSpace) {
-          //escape the string
+          allTranslations.push({
+            nameSpace,
+            string: key,
+            message: key,
+          });
+        } else {
+          allTranslations.push({
+            nameSpace: "",
+            string: key,
+            message: key,
+          });
+        }
+      }
+    }
 
+    console.log("file", file);
+
+    if (file === "_test/components/TestWithHook.tsx") {
+      console.log("translations", allTranslations);
+      console.log("translations keys", Object.keys(allTranslations));
+    }
+    if (allTranslations && Object.keys(allTranslations).length) {
+      Object.keys(allTranslations).forEach((t: string) => {
+        const string = t.replace(/\bt\(['"](.+?)['"]\)/, "$1");
+
+        if (file === "_test/components/TestWithHook.tsx") {
+          console.log("string", string);
+        }
+        if (nameSpace) {
           allTranslations.push({
             nameSpace,
             string,
+            message: string,
           });
         } else {
           allTranslations.push({
             nameSpace: "",
             string,
+            message: string,
           });
         }
       });
+    }
+
+    if (file === "_test/components/TestWithHook.tsx") {
+      console.log("------------------------");
+
+      console.log(allTranslations);
     }
 
     for (const pattern of validCustomPatterns) {
@@ -165,6 +222,7 @@ const extractTranslations = async (options: DefaultOptions = {}) => {
           allTranslations.push({
             nameSpace: namespace,
             string: string,
+            message: string,
           });
         }
       }
@@ -175,16 +233,25 @@ const extractTranslations = async (options: DefaultOptions = {}) => {
   const translationsObject: any = {};
 
   for (const translation of allTranslations) {
-    const { nameSpace, string } = translation;
+    const { nameSpace, string, message } = translation as any;
+
+    // Skip if the key is a number
+    if (!isNaN(Number(string))) {
+      continue;
+    }
 
     if (nameSpace.length > 0) {
       if (!translationsObject[nameSpace]) {
         translationsObject[nameSpace] = {};
       }
-
-      translationsObject[nameSpace][string] = string;
+      // For custom hook, use the message as value
+      if (message) {
+        translationsObject[nameSpace][string] = message;
+      } else {
+        translationsObject[nameSpace][string] = string;
+      }
     } else {
-      translationsObject[string] = string;
+      translationsObject[string] = message || string;
     }
   }
 
@@ -197,21 +264,41 @@ const extractTranslations = async (options: DefaultOptions = {}) => {
   if (config.locales && config.locales.length) {
     for (const locale of config.locales) {
       const localeFile = path.resolve(config.outputDirectory, `${locale}.json`);
-      const localeTranslations = fs.existsSync(localeFile)
-        ? JSON.parse(fs.readFileSync(localeFile, "utf-8"))
-        : {};
+      //lets make sure its valid json
+      let localeTranslations: Record<string, string | Record<string, string>> =
+        {};
+      if (fs.existsSync(localeFile)) {
+        try {
+          localeTranslations = JSON.parse(fs.readFileSync(localeFile, "utf-8"));
+        } catch (error) {
+          Logger.error(
+            `Error parsing JSON file for locale ${locale}: ${error}`
+          );
+        }
+      }
 
       for (const translation of allTranslations) {
-        const { nameSpace, string } = translation;
+        const { nameSpace, string, message } = translation as any;
+
+        // Skip if the key is a number
+        if (!isNaN(Number(string))) {
+          continue;
+        }
 
         if (nameSpace.length > 0) {
           if (!localeTranslations[nameSpace]) {
             localeTranslations[nameSpace] = {};
           }
-
-          localeTranslations[nameSpace][string] = string;
+          // For custom hook, use the message as value
+          if (message) {
+            (localeTranslations[nameSpace] as Record<string, string>)[string] =
+              message;
+          } else {
+            (localeTranslations[nameSpace] as Record<string, string>)[string] =
+              string;
+          }
         } else {
-          localeTranslations[string] = string;
+          localeTranslations[string] = message || string;
         }
       }
 

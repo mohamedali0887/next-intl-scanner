@@ -133,6 +133,18 @@ describe("CLI", () => {
     );
   });
 
+
+  // check the translations hook
+  it("should process the translations with custom hook", (done) => {
+    exec(
+      `node ${cliPath} extract --config ./_test/valid.config.json`,
+      (error, stdout) => {
+        expect(stdout).toContain("Translations extracted successfully");
+      }
+    );
+  });
+
+  
   afterAll(async () => {
     console.log("Cleaning up ", `${testFolderPath}/messages`);
     // await rimrafSync(`${testFolderPath}/messages/`);

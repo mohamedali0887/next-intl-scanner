@@ -1,14 +1,54 @@
 {
+  "0": "0",
+  "1": "1",
+  "2": "2",
+  "3": "3",
+  "4": "4",
+  "5": "5",
+  "6": "6",
+  "7": "7",
+  "8": "8",
+  "9": "9",
+  "10": "10",
+  "11": "11",
+  "12": "12",
+  "13": "13",
+  "14": "14",
+  "15": "15",
+  "16": "16",
+  "17": "17",
+  "18": "18",
+  "19": "19",
+  "20": "20",
+  "21": "21",
   "Hello Test!": "Hello Test!",
   "Insert text directly": "Insert text directly",
   "Hello, {name}! You can use this tool to extract strings for {package}": "Hello, {name}! You can use this tool to extract strings for {package}",
   "customNamespace": {
-    "Hello Namespace!": "Hello Namespace!"
+    "0": "0",
+    "1": "1",
+    "2": "2",
+    "3": "3",
+    "4": "4",
+    "5": "5",
+    "6": "6",
+    "7": "7",
+    "8": "8",
+    "9": "9",
+    "10": "10",
+    "Hello Namespace!": "Hello Namespace!",
+    "customNamespace": "customNamespace"
   },
   "new namespace": {
     "test string": "test string"
   },
   "Formatted message": {
     "formatted string": "formatted string"
+  },
+  "customHook": {
+    "0": "0",
+    "testKey": "Test Message.",
+    "customHook": "customHook",
+    "Test Message": "Test Message"
   }
 }

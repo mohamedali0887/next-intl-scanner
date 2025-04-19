@@ -707,6 +707,11 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
+"@schummar/icu-type-parser@1.21.5":
+  version "1.21.5"
+  resolved "https://registry.yarnpkg.com/@schummar/icu-type-parser/-/icu-type-parser-1.21.5.tgz#75989085bbbf80ee325874a0137437bde77e9baf"
+  integrity sha512-bXHSaW5jRTmke9Vd0h5P7BtWZG9Znqb8gSDxZnxaGSJnGwPLDPfS+3g0BKzeWqzgZPsIVZkM7m2tbo18cm5HBw==
+
 "@sinclair/typebox@^0.27.8":
   version "0.27.8"
   resolved "https://registry.npmjs.org/@sinclair/typebox/-/typebox-0.27.8.tgz"
@@ -2157,14 +2162,14 @@ negotiator@^1.0.0:
   resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-1.0.0.tgz#b6c91bb47172d69f93cfd7c357bbb529019b5f6a"
   integrity sha512-8Ofs/AUQh8MaEcrlq5xOX0CQ9ypTF5dl78mjlMNfOK08fzpgTHQRQPBxcPlEtIw0yRpws+Zo/3r+5WRby7u3Gg==
 
-next-intl@^3.26.1:
-  version "3.26.1"
-  resolved "https://registry.yarnpkg.com/next-intl/-/next-intl-3.26.1.tgz#159152b00179169371d7b70d2179cdb7f2aac964"
-  integrity sha512-TE4cQgXNw4jzEtVPdiYQOCmhAu+Z2qoUppCMxPkJoz8XXe8TdqiNEPhD/GtXEsI80nV6NnVAq3hyTHH5+ex6Hw==
+next-intl@^4.0.2:
+  version "4.0.2"
+  resolved "https://registry.yarnpkg.com/next-intl/-/next-intl-4.0.2.tgz#952cb392e441c4feedc78d158a27c5d3c1d24991"
+  integrity sha512-3cKVflwdrqxCOvAL+DtGN68qR802i0PEj0dttkAD5IK5XxOjugQs4yU8aSakvPMbkOrhEJ+89z5lG2EAqi7Gkw==
   dependencies:
     "@formatjs/intl-localematcher" "^0.5.4"
     negotiator "^1.0.0"
-    use-intl "^3.26.1"
+    use-intl "^4.0.2"
 
 node-int64@^0.4.0:
   version "0.4.0"
@@ -2670,12 +2675,13 @@ update-browserslist-db@^1.1.1:
     escalade "^3.2.0"
     picocolors "^1.1.0"
 
-use-intl@^3.26.1:
-  version "3.26.1"
-  resolved "https://registry.yarnpkg.com/use-intl/-/use-intl-3.26.1.tgz#bb329d955658a416b42c4e2c48b9e9c53747add3"
-  integrity sha512-MZhtSBcMrDna3xs1T6O7CAXx4wRfm1eGyUYrDCCnW9qTOGZurCH5k/X6ChDl6EI4f+qYEtXQCRMkQUVOIhJWTQ==
+use-intl@^4.0.2:
+  version "4.0.2"
+  resolved "https://registry.yarnpkg.com/use-intl/-/use-intl-4.0.2.tgz#e63f69dc2cad48f8633e7bab220f1bbb071baaba"
+  integrity sha512-6RAP/5KJMRzLMLS25/BVh2u09cRK8S6HRGc1RnZvqR547qAKZCpjYylOqMPU9eNIirAiKoGmsoUPa7JrlaA/yg==
   dependencies:
     "@formatjs/fast-memoize" "^2.2.0"
+    "@schummar/icu-type-parser" "1.21.5"
     intl-messageformat "^10.5.14"
 
 v8-to-istanbul@^9.0.1:
