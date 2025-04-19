@@ -36,10 +36,16 @@ const extractTranslations = async (options: DefaultOptions = {}) => {
   //extract translations
   //first we need to get all the files that match the pattern
   for (const page of config.pages) {
-    const files = await glob(page.match, {
-      ignore: page.ignore.concat(config.ignore),
+    const files = await new Promise<string[]>((resolve, reject) => {
+      glob(
+        page.match,
+        { ignore: page.ignore.concat(config.ignore) },
+        (err, matches) => {
+          if (err) reject(err);
+          else resolve(matches);
+        }
+      );
     });
-
     allFiles.push(...files);
   }
 
@@ -150,19 +156,11 @@ const extractTranslations = async (options: DefaultOptions = {}) => {
       }
     }
 
-    console.log("file", file);
-
-    if (file === "_test/components/TestWithHook.tsx") {
-      console.log("translations", allTranslations);
-      console.log("translations keys", Object.keys(allTranslations));
-    }
     if (allTranslations && Object.keys(allTranslations).length) {
       Object.keys(allTranslations).forEach((t: string) => {
         const string = t.replace(/\bt\(['"](.+?)['"]\)/, "$1");
 
-        if (file === "_test/components/TestWithHook.tsx") {
-          console.log("string", string);
-        }
+     
         if (nameSpace) {
           allTranslations.push({
             nameSpace,
@@ -179,11 +177,7 @@ const extractTranslations = async (options: DefaultOptions = {}) => {
       });
     }
 
-    if (file === "_test/components/TestWithHook.tsx") {
-      console.log("------------------------");
 
-      console.log(allTranslations);
-    }
 
     for (const pattern of validCustomPatterns) {
       // Match the whole tag with its attributes

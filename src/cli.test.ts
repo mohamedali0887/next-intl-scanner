@@ -133,7 +133,6 @@ describe("CLI", () => {
     );
   });
 
-
   // check the translations hook
   it("should process the translations with custom hook", (done) => {
     exec(
@@ -144,7 +143,6 @@ describe("CLI", () => {
     );
   });
 
-  
   afterAll(async () => {
     console.log("Cleaning up ", `${testFolderPath}/messages`);
     // await rimrafSync(`${testFolderPath}/messages/`);

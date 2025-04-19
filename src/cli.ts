@@ -2,7 +2,7 @@
 
 import { Command } from "commander";
 import extractTranslations from "./utils/extractTranslations";
-import pkg from "../package.json";
+import pkg from "./utils/packageInfo";
 const program = new Command();
 
 program
