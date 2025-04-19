@@ -1,7 +1,7 @@
 import Logger from "./logger";
 import fs from "fs";
-import { pathToFileURL } from "url";
 import type { Config } from "./types";
+import path from "path";
 
 export const defaultConfig: Config = {
   locales: ["en"],
@@ -51,19 +51,26 @@ export const validateConfig = (config: Config): boolean => {
 
 const importFile = async (url: string) => {
   let config: Config;
-  if (url.endsWith(".json")) {
-    //make the url relative to the working directory
-
-    config = JSON.parse(
-      fs.readFileSync(url, {
+  try {
+    const ext = path.extname(url).toLowerCase();
+    if (ext === ".json") {
+      // For JSON files
+      const content = fs.readFileSync(url, {
         encoding: "utf-8",
-      })
-    );
-  } else {
-    config = (await import(url)).default;
+      });
+      config = JSON.parse(content);
+    } else if (ext === ".js" || ext === ".cjs" || ext === ".mjs") {
+      // For JS files, handle both CommonJS and ES modules
+      const module = require(url);
+      config = module.default || module;
+    } else {
+      throw new Error(`Unsupported config file extension: ${ext}`);
+    }
+    return config;
+  } catch (error) {
+    console.error("Error loading config file:", error);
+    throw error;
   }
-
-  return config;
 };
 
 export const loadConfig = async (
@@ -75,33 +82,46 @@ export const loadConfig = async (
 
   if (configPath) {
     if (custom) {
-      Logger.info(`Using custom configuration file: ${configPath}`);
+      // Resolve the path relative to the current working directory
+      const absolutePath = path.resolve(process.cwd(), configPath);
+      Logger.info(`Using custom configuration file: ${absolutePath}`);
 
-      if (!fs.existsSync(configPath)) {
-        Logger.error("Custom Configuration file does not exist");
-        return null;
-      }
-      // Convert the path to a file URL
-
-      config = await importFile(configPath);
-    } else {
-      //first find .json , if not found then find .js
-      const isJson = fs.existsSync(configPath + ".json");
-      const isJs = fs.existsSync(configPath + ".js");
-
-      if (!isJson && !isJs) {
+      if (!fs.existsSync(absolutePath)) {
         Logger.error(
-          "Default Configuration file does not exist , please create  next-intl-scanner.config.js or next-intl-scanner.config.json in your project root"
+          `Custom Configuration file does not exist at: ${absolutePath}`
         );
         return null;
       }
 
-      const configUrl = isJson ? configPath + ".json" : configPath + ".js";
+      config = await importFile(absolutePath);
+    } else {
+      // Get the absolute path to the config file
+      const absolutePath = path.resolve(process.cwd(), configPath);
 
+      //first find .json , if not found then find .js
+      const isJson = fs.existsSync(absolutePath + ".json");
+      const isJs = fs.existsSync(absolutePath + ".js");
+
+      if (!isJson && !isJs) {
+        Logger.error(
+          `Default Configuration file does not exist at: ${absolutePath}\nPlease create next-intl-scanner.config.js or next-intl-scanner.config.json in your project root`
+        );
+        return null;
+      }
+
+      const configUrl = isJson ? absolutePath + ".json" : absolutePath + ".js";
       config = await importFile(configUrl);
     }
 
-    parsedConfig = { ...defaultConfig, ...(config as unknown as Config) };
+    // Deep merge the configs
+    parsedConfig = {
+      ...defaultConfig,
+      ...config,
+      pages: config.pages || defaultConfig.pages,
+      customJSXPattern:
+        config.customJSXPattern || defaultConfig.customJSXPattern,
+      ignore: [...new Set([...defaultConfig.ignore, ...(config.ignore || [])])],
+    };
 
     if (!validateConfig(parsedConfig)) {
       return null;

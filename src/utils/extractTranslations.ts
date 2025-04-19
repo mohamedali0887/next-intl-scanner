@@ -2,21 +2,9 @@ import fs from "fs";
 import path from "path";
 import { glob } from "glob";
 import Logger from "./logger";
-import { loadConfig } from "./config";
 import type { Config, DefaultOptions } from "./types";
 
-const extractTranslations = async (options: DefaultOptions = {}) => {
-  let configPath = path.resolve(process.cwd(), "next-intl-scanner.config");
-
-  if (options.config) {
-    configPath = path.resolve(process.cwd(), options.config);
-  }
-
-  const config: Config | null = await loadConfig(
-    configPath,
-    options.config ? true : false
-  );
-
+const extractTranslations = async (config: Config, options: DefaultOptions) => {
   if (!config) {
     Logger.error("Could not load configuration file");
     return;
@@ -39,14 +27,14 @@ const extractTranslations = async (options: DefaultOptions = {}) => {
     const files = await new Promise<string[]>((resolve, reject) => {
       glob(
         page.match,
-        { ignore: page.ignore.concat(config.ignore) },
+        { cwd: basepath, ignore: page.ignore.concat(config.ignore) },
         (err, matches) => {
           if (err) reject(err);
           else resolve(matches);
         }
       );
     });
-    allFiles.push(...files);
+    allFiles.push(...files.map((file) => path.resolve(basepath, file)));
   }
 
   //identify the custom patterns
@@ -93,7 +81,6 @@ const extractTranslations = async (options: DefaultOptions = {}) => {
   }[] = [];
 
   //then we need to extract the translations from each file
-
   for (const file of allFiles) {
     const source = fs.readFileSync(file, "utf-8");
     if (!source || source === null || !source.length) {
@@ -160,7 +147,6 @@ const extractTranslations = async (options: DefaultOptions = {}) => {
       Object.keys(allTranslations).forEach((t: string) => {
         const string = t.replace(/\bt\(['"](.+?)['"]\)/, "$1");
 
-     
         if (nameSpace) {
           allTranslations.push({
             nameSpace,
@@ -176,8 +162,6 @@ const extractTranslations = async (options: DefaultOptions = {}) => {
         }
       });
     }
-
-
 
     for (const pattern of validCustomPatterns) {
       // Match the whole tag with its attributes

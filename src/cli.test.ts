@@ -2,7 +2,6 @@ import { it, describe, expect, afterAll, jest } from "@jest/globals";
 import fs from "fs";
 import { exec } from "child_process";
 import path from "path";
-import { rimrafSync } from "rimraf";
 
 describe("CLI", () => {
   const cliPath = path.resolve(process.cwd(), "dist" + "/cli.js");
@@ -78,6 +77,8 @@ describe("CLI", () => {
         "Hello Namespace!"
       );
 
+      expect(parsedData.customHook["testKey"]).toContain("Test Message.");
+
       expect(parsedData["Ignore"]).toBeUndefined();
       done();
     });
@@ -133,16 +134,15 @@ describe("CLI", () => {
     );
   });
 
-  // check the translations hook
-  it("should process the translations with custom hook", (done) => {
-    exec(
-      `node ${cliPath} extract --config ./_test/valid.config.json`,
-      (error, stdout) => {
-        expect(stdout).toContain("Translations extracted successfully");
-      }
-    );
-  });
-
+  // //lets test the auto translate
+  // it("should process the translations with auto translate", (done) => {
+  //   exec(
+  //     `node ${cliPath} extract --config ./_test/valid.config.json`,
+  //     (error, stdout) => {
+  //       expect(stdout).toContain("Translations extracted successfully");
+  //     }
+  //   );
+  // });
   afterAll(async () => {
     console.log("Cleaning up ", `${testFolderPath}/messages`);
     // await rimrafSync(`${testFolderPath}/messages/`);
