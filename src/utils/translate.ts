@@ -2,8 +2,8 @@ import { Translate } from "@google-cloud/translate/build/src/v2";
 import Logger from "./logger";
 
 const translate = new Translate({
-  //   key: process.env.GOOGLE_TRANSLATE_API_KEY,
-  key: "AIzaSyAXDo3kw7LENR3qksQsU5IcAhe7nUeNVK8",
+    key: process.env.GOOGLE_TRANSLATE_API_KEY,
+
 });
 
 export const translateText = async (
