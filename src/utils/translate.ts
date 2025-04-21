@@ -1,21 +1,9 @@
-import { Translate } from "@google-cloud/translate/build/src/v2";
+import { v2 } from "@google-cloud/translate";
 import Logger from "./logger";
 
-if (!process.env.GOOGLE_TRANSLATE_API_KEY) {
-  Logger.error("GOOGLE_TRANSLATE_API_KEY is not set");
-  process.exit(1);
-}
-
-const translate = new Translate({
+const translate = new v2.Translate({
   key: process.env.GOOGLE_TRANSLATE_API_KEY,
 });
-
-// Map our locale codes to Google Translate language codes
-const localeToGoogleCode: Record<string, string> = {
-  en: "en",
-  ar: "ar",
-  // Add more mappings as needed
-};
 
 // This is a placeholder for the actual translation service
 // You should replace this with your preferred translation service
@@ -26,10 +14,12 @@ export async function translateText(
   targetLocale: string
 ): Promise<string> {
   try {
-    const sourceLanguage = localeToGoogleCode[sourceLocale];
-    const targetLanguage = localeToGoogleCode[targetLocale];
+    if (!process.env.GOOGLE_TRANSLATE_API_KEY) {
+      Logger.error("GOOGLE_TRANSLATE_API_KEY is not set");
+      process.exit(1);
+    }
 
-    if (!sourceLanguage || !targetLanguage) {
+    if (!sourceLocale || !targetLocale) {
       Logger.error(`Unsupported locale: ${sourceLocale} or ${targetLocale}`);
       return text;
     }
@@ -39,8 +29,8 @@ export async function translateText(
     );
 
     const [translation] = await translate.translate(text, {
-      from: sourceLanguage,
-      to: targetLanguage,
+      from: sourceLocale,
+      to: targetLocale,
     });
 
     return translation;

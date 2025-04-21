@@ -1,5 +1,4 @@
 import { it, describe, expect, afterAll } from "@jest/globals";
-import fs from "fs";
 import { exec } from "child_process";
 import path from "path";
 
@@ -67,14 +66,6 @@ describe("CLI", () => {
       `node ${cliPath} extract --config ./_test/valid.config.json`,
       (error, stdout) => {
         try {
-          console.log("Full stdout:", stdout);
-          console.log("Looking for:", "Translations extracted successfully");
-          console.log(
-            "Found at index:",
-            stdout.indexOf("Translations extracted successfully")
-          );
-          console.log("Substring at index:", stdout.substring(1500, 1530)); // Show the exact substring around where we found it
-
           // Try a more precise match
           const successMessage = "Translations extracted successfully";
           const foundIndex = stdout.indexOf(successMessage);
@@ -82,9 +73,6 @@ describe("CLI", () => {
             foundIndex,
             foundIndex + successMessage.length
           );
-
-          console.log("Found substring:", foundSubstring);
-          console.log("Exact match:", foundSubstring === successMessage);
 
           // Try both exact match and contains
           expect(foundSubstring).toBe(successMessage);

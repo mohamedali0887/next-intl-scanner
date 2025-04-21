@@ -1,13 +1,16 @@
 {
-  "ERROR_TEST": "يجب أن يؤدي هذا إلى حدوث خطأ",
+  "customKey": "قيمة موجودة",
+  "Hello Test!": "مرحبا بالاختبار!",
   "customNamespace": {
     "Hello Namespace!": "مرحباً بالمساحة الاسمية!"
   },
-  "Hello Test!": "مرحبا بالاختبار!",
   "Hello World!": "مرحبا بالعالم!",
   "Insert text directly": "إدراج النص مباشرة",
   "Hello, {name}! You can use this tool to extract strings for {package}": "مرحباً، {name}! يمكنك استخدام هذه الأداة لاستخراج سلاسل نصية لـ {package}.",
   "customHook": {
     "testKey": "رسالة اختبار."
+  },
+  "Formatted message": {
+    "formatted string": "سلسلة منسقة"
   }
 }

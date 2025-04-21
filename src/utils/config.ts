@@ -98,9 +98,16 @@ export const loadConfig = async (
       // Get the absolute path to the config file
       const absolutePath = path.resolve(process.cwd(), configPath);
 
+      if (!fs.existsSync(absolutePath)) {
+        Logger.error(
+          `Default Configuration file does not exist at: ${absolutePath}\nPlease create next-intl-scanner.config.js or next-intl-scanner.config.json in your project root`
+        );
+        return null;
+      }
+
       //first find .json , if not found then find .js
-      const isJson = fs.existsSync(absolutePath + ".json");
-      const isJs = fs.existsSync(absolutePath + ".js");
+      const isJson = absolutePath.endsWith(".json");
+      const isJs = absolutePath.endsWith(".js");
 
       if (!isJson && !isJs) {
         Logger.error(
@@ -108,8 +115,7 @@ export const loadConfig = async (
         );
         return null;
       }
-
-      const configUrl = isJson ? absolutePath + ".json" : absolutePath + ".js";
+      const configUrl = absolutePath;
       config = await importFile(configUrl);
     }
 
