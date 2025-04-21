@@ -1,6 +1,8 @@
 export type DefaultOptions = {
   config?: string;
   version?: boolean;
+  overwrite?: boolean;
+  autoTranslate?: boolean;
 };
 
 export type Config = {

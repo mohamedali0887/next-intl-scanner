@@ -8,6 +8,7 @@ const Test = () => {
   return (
     <div>
       <h1>{t("Hello Test!")}</h1>
+      <h1>{t("Hello World!")}</h1>
       <h2>{t(`Insert text directly`)}</h2>
       <h3>
         {t(
@@ -17,10 +18,7 @@ const Test = () => {
             package: "react-intl",
           }
         )}
-        
       </h3>
-
-      
     </div>
   );
 };

@@ -7,6 +7,25 @@
     "name": "Mohamed Ali",
     "email": "mohamedali0887@gmail.com"
   },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "bin": {
+    "next-intl-scanner": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc && tsc-alias",
+    "build:watch": "tsc && (concurrently \"tsc -w\" \"tsc-alias -w\")",
+    "test": "jest --config jest.config.cjs",
+    "test:watch": "jest --watch",
+    "extract": "node dist/cli.js extract"
+  },
   "keywords": [
     "next",
     "next.js",
@@ -17,15 +36,9 @@
     "scanner",
     "extractor"
   ],
-  "scripts": {
-    "build": "tsc && tsc-alias",
-    "build:watch": "tsc && (concurrently \"tsc -w\" \"tsc-alias -w\")",
-    "test": "jest",
-    "extract": "node dist/cli.js extract"
-  },
   "license": "MIT",
   "dependencies": {
-    "@google-cloud/translate": "^7.2.0",
+    "@google-cloud/translate": "^7.2.2",
     "@types/node": "^14.18.0",
     "chalk": "^4.1.0",
     "commander": "^9.4.1",
@@ -41,9 +54,6 @@
       "optional": true
     }
   },
-  "bin": {
-    "next-intl-scanner": "./dist/cli.js"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/mohamedali0887/next-intl-scanner.git"
@@ -57,6 +67,7 @@
   },
   "devDependencies": {
     "@types/glob": "^8.1.0",
+    "@types/jest": "^27.5.2",
     "concurrently": "^7.6.0",
     "jest": "^27.5.1",
     "ts-jest": "^27.1.4",

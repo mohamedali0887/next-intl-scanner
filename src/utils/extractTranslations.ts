@@ -3,6 +3,7 @@ import path from "path";
 import { glob } from "glob";
 import Logger from "./logger";
 import type { Config, DefaultOptions } from "./types";
+import { translateText } from "./translate";
 
 const extractTranslations = async (config: Config, options: DefaultOptions) => {
   if (!config) {
@@ -207,32 +208,6 @@ const extractTranslations = async (config: Config, options: DefaultOptions) => {
     }
   }
 
-  //now lets map it to an object
-  const translationsObject: any = {};
-
-  for (const translation of allTranslations) {
-    const { nameSpace, string, message } = translation as any;
-
-    // Skip if the key is a number
-    if (!isNaN(Number(string))) {
-      continue;
-    }
-
-    if (nameSpace.length > 0) {
-      if (!translationsObject[nameSpace]) {
-        translationsObject[nameSpace] = {};
-      }
-      // For custom hook, use the message as value
-      if (message) {
-        translationsObject[nameSpace][string] = message;
-      } else {
-        translationsObject[nameSpace][string] = string;
-      }
-    } else {
-      translationsObject[string] = message || string;
-    }
-  }
-
   // now lets write the translations to the output directory
   // if the output directory does not exist we need to create it
   if (!fs.existsSync(config.outputDirectory)) {
@@ -247,7 +222,12 @@ const extractTranslations = async (config: Config, options: DefaultOptions) => {
         {};
       if (fs.existsSync(localeFile)) {
         try {
-          localeTranslations = JSON.parse(fs.readFileSync(localeFile, "utf-8"));
+          const existingTranslations = JSON.parse(
+            fs.readFileSync(localeFile, "utf-8")
+          );
+          // Deep copy the existing translations to preserve all values
+          localeTranslations = JSON.parse(JSON.stringify(existingTranslations));
+          Logger.info(`Loaded existing translations for ${locale}`);
         } catch (error) {
           Logger.error(
             `Error parsing JSON file for locale ${locale}: ${error}`
@@ -256,7 +236,11 @@ const extractTranslations = async (config: Config, options: DefaultOptions) => {
       }
 
       for (const translation of allTranslations) {
-        const { nameSpace, string, message } = translation as any;
+        const { nameSpace, string, message } = translation as {
+          nameSpace: string;
+          string: string;
+          message?: string;
+        };
 
         // Skip if the key is a number
         if (!isNaN(Number(string))) {
@@ -267,17 +251,46 @@ const extractTranslations = async (config: Config, options: DefaultOptions) => {
           if (!localeTranslations[nameSpace]) {
             localeTranslations[nameSpace] = {};
           }
-          // For custom hook, use the message as value
-          if (message) {
-            (localeTranslations[nameSpace] as Record<string, string>)[string] =
-              message;
+          const namespaceObj = localeTranslations[nameSpace] as Record<
+            string,
+            string
+          >;
+
+          // Only update if overwrite is true or key doesn't exist
+          if (options.overwrite || !namespaceObj[string]) {
+            Logger.info(`Updating translation for ${nameSpace}.${string}`);
+            if (message) {
+              namespaceObj[string] = message;
+            } else {
+              namespaceObj[string] = string;
+            }
           } else {
-            (localeTranslations[nameSpace] as Record<string, string>)[string] =
-              string;
+            Logger.info(
+              `Preserving existing translation for ${nameSpace}.${string}: ${namespaceObj[string]}`
+            );
           }
         } else {
-          localeTranslations[string] = message || string;
+          // Only update if overwrite is true or key doesn't exist
+          if (options.overwrite || !localeTranslations[string]) {
+            Logger.info(`Updating translation for ${string}`);
+            localeTranslations[string] = message || string;
+          } else {
+            Logger.info(
+              `Preserving existing translation for ${string}: ${localeTranslations[string]}`
+            );
+          }
         }
+      }
+
+      // Auto-translate if enabled and not the default locale
+      if (options.autoTranslate && locale !== config.defaultLocale) {
+        Logger.info(`Auto-translating content for locale: ${locale}`);
+        const translatedContent = await translateContent(
+          localeTranslations,
+          config.defaultLocale,
+          locale
+        );
+        localeTranslations = translatedContent;
       }
 
       //write the translations to the file
@@ -288,5 +301,37 @@ const extractTranslations = async (config: Config, options: DefaultOptions) => {
 
   Logger.success("Translations extracted successfully");
 };
+
+async function translateContent(
+  content: Record<string, any>,
+  sourceLocale: string,
+  targetLocale: string
+): Promise<Record<string, any>> {
+  const translatedContent: Record<string, any> = {};
+
+  for (const [key, value] of Object.entries(content)) {
+    if (typeof value === "string") {
+      // Translate string value
+      const translatedValue = await translateText(
+        value,
+        sourceLocale,
+        targetLocale
+      );
+      translatedContent[key] = translatedValue;
+    } else if (typeof value === "object" && value !== null) {
+      // Recursively translate nested objects
+      translatedContent[key] = await translateContent(
+        value as Record<string, any>,
+        sourceLocale,
+        targetLocale
+      );
+    } else {
+      // Keep non-string, non-object values as is
+      translatedContent[key] = value;
+    }
+  }
+
+  return translatedContent;
+}
 
 export default extractTranslations;

@@ -18,7 +18,7 @@ program
   .command("extract")
   .option("--version", "Display the version number")
   .option("--config <path>", "Path to the configuration file")
-  .option("--preserve", "Preserve existing translations", false)
+  .option("--overwrite", "Overwrite existing translations", false)
   .option(
     "--auto-translate",
     "Automatically translate strings using a translation service",
@@ -30,9 +30,9 @@ program
     `
 Examples:
   $ next-intl-scanner extract
-  $ next-intl-scanner extract --preserve
+  $ next-intl-scanner extract --overwrite
   $ next-intl-scanner extract --auto-translate
-  $ next-intl-scanner extract --preserve --auto-translate
+  $ next-intl-scanner extract --overwrite --auto-translate
   `
   )
   .action(async (options) => {

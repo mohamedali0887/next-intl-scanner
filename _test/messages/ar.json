@@ -1,14 +1,13 @@
 {
+  "ERROR_TEST": "يجب أن يؤدي هذا إلى حدوث خطأ",
   "customNamespace": {
-    "Hello Namespace!": "Hello Namespace!"
+    "Hello Namespace!": "مرحباً بالمساحة الاسمية!"
   },
-  "Hello Test!": "Hello Test!",
-  "Insert text directly": "Insert text directly",
-  "Hello, {name}! You can use this tool to extract strings for {package}": "Hello, {name}! You can use this tool to extract strings for {package}",
+  "Hello Test!": "مرحبا بالاختبار!",
+  "Hello World!": "مرحبا بالعالم!",
+  "Insert text directly": "إدراج النص مباشرة",
+  "Hello, {name}! You can use this tool to extract strings for {package}": "مرحباً، {name}! يمكنك استخدام هذه الأداة لاستخراج سلاسل نصية لـ {package}.",
   "customHook": {
-    "testKey": "Test Message."
-  },
-  "Formatted message": {
-    "formatted string": "formatted string"
+    "testKey": "رسالة اختبار."
   }
 }
