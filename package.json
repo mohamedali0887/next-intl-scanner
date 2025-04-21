@@ -17,7 +17,7 @@
     }
   },
   "bin": {
-    "next-intl-scanner": "./dist/cli.js"
+    "next-intl-scanner": "dist/cli.js"
   },
   "scripts": {
     "build": "tsc && tsc-alias",
@@ -57,7 +57,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mohamedali0887/next-intl-scanner.git"
+    "url": "git+https://github.com/mohamedali0887/next-intl-scanner.git"
   },
   "homepage": "https://github.com/mohamedali0887/next-intl-scanner#readme",
   "bugs": {
