@@ -1,16 +1,16 @@
 {
   "customKey": "قيمة موجودة",
-  "Hello Test!": "مرحبا بالاختبار!",
+  "Hello Test!": "مرحبا بالعالم!",
   "customNamespace": {
-    "Hello Namespace!": "مرحباً بالمساحة الاسمية!"
+    "Hello Namespace!": "Hello Namespace!"
   },
   "Hello World!": "مرحبا بالعالم!",
-  "Insert text directly": "إدراج النص مباشرة",
-  "Hello, {name}! You can use this tool to extract strings for {package}": "مرحباً، {name}! يمكنك استخدام هذه الأداة لاستخراج سلاسل نصية لـ {package}.",
+  "Insert text directly": "أدخل النص مباشرة",
+  "Hello, {name}! You can use this tool to extract strings for {package}": "مرحبا {name}! يمكنك استخدام هذه الأداة لاستخراج السلاسل لـ {package}",
   "customHook": {
-    "testKey": "رسالة اختبار."
+    "testKey": "مرحبا بك في المسابقة"
   },
   "Formatted message": {
-    "formatted string": "سلسلة منسقة"
+    "formatted string": "formatted string"
   }
 }

@@ -49,6 +49,9 @@ describe("Translation Tests", () => {
       JSON.stringify(testTranslations, null, 2)
     );
 
+    //lets set a fake  API KEY
+    process.env.GOOGLE_TRANSLATE_API_KEY = "fake-api-key";
+    console.log(process.env.GOOGLE_TRANSLATE_API_KEY);
     await runCli([
       "extract",
       "--config",

@@ -3,6 +3,7 @@ export type DefaultOptions = {
   version?: boolean;
   overwrite?: boolean;
   autoTranslate?: boolean;
+  defaultLocale?: string;
 };
 
 export type Config = {
@@ -15,6 +16,7 @@ export type Config = {
     attributes: {
       namespace: string;
       string: string;
+      key: string;
     };
   }[];
   pages: {

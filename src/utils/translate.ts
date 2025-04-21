@@ -2,7 +2,7 @@ import { v2 } from "@google-cloud/translate";
 import Logger from "./logger";
 
 const translate = new v2.Translate({
-  key: process.env.GOOGLE_TRANSLATE_API_KEY,
+  key: process.env.GOOGLE_TRANSLATE_API_KEY as string,
 });
 
 // This is a placeholder for the actual translation service

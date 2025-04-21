@@ -46,7 +46,11 @@ Examples:
         process.exit(1);
       }
 
-      await extractTranslations(config, options);
+      await extractTranslations(config, {
+        overwrite: options.overwrite,
+        autoTranslate: options.autoTranslate,
+        defaultLocale: config.defaultLocale,
+      });
     });
 
   await program.parseAsync(["node", "next-intl-scanner", ...args]);
