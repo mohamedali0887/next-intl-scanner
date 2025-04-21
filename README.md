@@ -12,6 +12,14 @@ yarn add next-intl-scanner --dev
 
 ## Usage
 
+### CLI Tool
+
+This package is designed to be used as a CLI tool for extracting translations during build time or development.
+
+```bash
+next-intl-scanner extract
+```
+
 ### Basic Usage
 
 The simplest way to use Next Intl Scanner is to run the extract command:
@@ -23,6 +31,47 @@ npx next-intl-scanner extract
 This will scan your project for translations using the default configuration.
 
 ### Advanced Usage
+
+#### Using as a frontend hook to scan clean jsonKeys
+
+the problem with using strings as keys is that there are some characters that are not allowed in jsonKeys like `.` and `:`, so we need to use a custom hook to scan the jsonKeys and return the clean keys.
+
+To solve this, you can use a custom hook for translations, so that our custom scanner function will work with the clean keys.
+
+```typescript
+// hooks/useTranslation.ts
+import { useTranslations } from "next-intl";
+
+export function useCustomTranslation(namespace: string) {
+  const t = useTranslations(namespace);
+
+  return {
+    t: (key: string, params?: Record<string, any>, message?: string) => {
+      try {
+        return t(key, params);
+      } catch (error) {
+        // Fallback to message or key if translation is missing
+        return message || key;
+      }
+    },
+  };
+}
+
+// Usage in components:
+import { useCustomTranslation } from "@/hooks/useTranslation";
+
+function MyComponent() {
+  const { t } = useCustomTranslation("namespace");
+  return <div>{t("key", {}, "fallback message")}</div>;
+}
+```
+
+This approach:
+
+1. Keeps the package focused on its main purpose - translation extraction
+2. Avoids browser compatibility issues
+3. Provides a clear separation between build-time and runtime functionality
+4. Gives users flexibility in implementing their own translation hooks
 
 #### Extract with Auto-translation
 
@@ -71,7 +120,6 @@ module.exports = {
 
   // Default locale
   defaultLocale: "en",
-
 
   // Note: Currently only Google Translate API v2 is supported , make sure that you have set the GOOGLE_TRANSLATE_API_KEY environment variable
   // If you need support for other translation services, please create an issue on GitHub

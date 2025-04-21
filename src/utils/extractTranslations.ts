@@ -3,7 +3,7 @@ import path from "path";
 import { glob } from "glob";
 import Logger from "./logger";
 import type { Config, DefaultOptions } from "./types";
-import { translateText } from "./translate";
+import { translateContent } from "./translate";
 
 const extractTranslations = async (config: Config, options: DefaultOptions) => {
   if (!config) {
@@ -113,28 +113,23 @@ const extractTranslations = async (config: Config, options: DefaultOptions) => {
 
       // Process custom JSX patterns
       for (const pattern of validCustomPatterns) {
-        const tagRegex = new RegExp(`<${pattern.element}[^>]*?>`, "g");
+        const tagRegex = new RegExp(`<${pattern.element}[^>]*>`, "gs");
         while ((match = tagRegex.exec(source)) !== null) {
           const tag = match[0];
-          console.log("Found tag:", tag);
-          const attributeRegex = /(\w+)=["']?\{(.*?)\}["']?/g;
+          const attributeRegex =
+            /(\w+)\s*=\s*(?:{[`'"](.+?)[`'"]}|[`'"](.+?)[`'"])/g;
           const attributes: Record<string, string> = {};
 
           let attributeMatch;
           while ((attributeMatch = attributeRegex.exec(tag)) !== null) {
-            console.log("attr1 (name):", attributeMatch[1]);
-            console.log("attr2 (value):", attributeMatch[2]);
             const attrName = attributeMatch[1];
-            const attrValue = attributeMatch[2]
-              .trim()
-              .replace(/^['"`]|['"`]$/g, "");
-            console.log("Final attrName:", attrName);
-            console.log("Final attrValue:", attrValue);
-            attributes[attrName] = attrValue;
-          }
+            let attrValue = (attributeMatch[2] || attributeMatch[3]).trim();
 
-          console.log("Final attributes:", attributes);
-          console.log("Pattern attributes:", pattern.attributes);
+            attrValue = attrValue.replace(/^[`'"]+|[`'"]+$/g, "");
+
+            attributes[attrName] = attrValue;
+            Logger.info(`Found attribute: ${attrName} = ${attrValue}`);
+          }
 
           if (
             attributes[pattern.attributes.string] &&
@@ -146,7 +141,11 @@ const extractTranslations = async (config: Config, options: DefaultOptions) => {
               message: attributes[pattern.attributes.string],
               key: attributes[pattern.attributes.key] || undefined,
             };
-            console.log("Adding translation:", translation);
+            Logger.info(
+              `Found FormattedMessage translation: ${JSON.stringify(
+                translation
+              )}`
+            );
             batchTranslations.push(translation);
           }
         }
@@ -224,37 +223,5 @@ const extractTranslations = async (config: Config, options: DefaultOptions) => {
 
   Logger.success("Translations extracted successfully");
 };
-
-async function translateContent(
-  content: Record<string, any>,
-  sourceLocale: string,
-  targetLocale: string
-): Promise<Record<string, any>> {
-  const translatedContent: Record<string, any> = {};
-
-  for (const [key, value] of Object.entries(content)) {
-    if (typeof value === "string") {
-      // Translate string value
-      const translatedValue = await translateText(
-        value,
-        sourceLocale,
-        targetLocale
-      );
-      translatedContent[key] = translatedValue;
-    } else if (typeof value === "object" && value !== null) {
-      // Recursively translate nested objects
-      translatedContent[key] = await translateContent(
-        value as Record<string, any>,
-        sourceLocale,
-        targetLocale
-      );
-    } else {
-      // Keep non-string, non-object values as is
-      translatedContent[key] = value;
-    }
-  }
-
-  return translatedContent;
-}
 
 export default extractTranslations;

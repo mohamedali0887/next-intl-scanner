@@ -1,14 +1,14 @@
 {
   "customKey": "قيمة موجودة",
   "Hello Test!": "مرحبا بالعالم!",
+  "Hello World!": "Hello World!",
+  "Insert text directly": "Insert text directly",
+  "Hello, {name}! You can use this tool to extract strings for {package}": "Hello, {name}! You can use this tool to extract strings for {package}",
   "customNamespace": {
     "Hello Namespace!": "Hello Namespace!"
   },
-  "Hello World!": "مرحبا بالعالم!",
-  "Insert text directly": "أدخل النص مباشرة",
-  "Hello, {name}! You can use this tool to extract strings for {package}": "مرحبا {name}! يمكنك استخدام هذه الأداة لاستخراج السلاسل لـ {package}",
   "customHook": {
-    "testKey": "مرحبا بك في المسابقة"
+    "testKey": "Test Message."
   },
   "Formatted message": {
     "formatted string": "formatted string"
