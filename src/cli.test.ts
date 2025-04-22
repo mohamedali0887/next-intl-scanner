@@ -19,7 +19,7 @@ describe("CLI", () => {
     exec(`node ${cliPath} next-intl-scanner --help`, (error, stdout) => {
       expect(error).toBeNull();
       expect(stdout).toContain(
-        "Extracts and merges translations for Next.js applications using react-intl"
+        "Extracts and merges translations for Next.js applications using next-intl"
       );
       done();
     });

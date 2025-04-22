@@ -241,7 +241,7 @@ If you encounter any issues or have questions:
 ## Requirements
 
 - Node.js >= 14.0.0
-- Next.js project using react-intl
+- Next.js project using next-intl
 - npm or yarn package manager
 
 ## License

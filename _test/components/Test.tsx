@@ -16,7 +16,7 @@ const Test = () => {
           "Hello, {name}! You can use this tool to extract strings for {package}",
           {
             name: "John",
-            package: "react-intl",
+            package: "next-intl",
           }
         )}
       </h3>

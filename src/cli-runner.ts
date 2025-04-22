@@ -10,7 +10,7 @@ export async function runCli(args: string[]) {
   program
     .name("next-intl-scanner")
     .description(
-      "Extracts and merges translations for Next.js applications using react-intl"
+      "Extracts and merges translations for Next.js applications using next-intl"
     )
     .version(pkg.version)
     .allowUnknownOption(false);
