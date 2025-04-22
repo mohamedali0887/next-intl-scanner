@@ -1,45 +1,38 @@
 import Logger from "./logger";
 
+export const checkForDots = (string: string) => {
+  if (string.includes(".")) {
+    Logger.error(
+      `Found a dot in the string "${string}", this will break next-intl translations as keys will be interpreted as namespaces`
+    );
+    Logger.error(
+      "Please rename the key to remove the dot or refer to the readme file for using custom elements that support dot notation"
+    );
+    process.exit(1);
+  }
+};
 export const flattenObject = async (obj: Record<string, any>) => {
   const flattened: Record<string, any> = {};
 
   for (const key in obj) {
     if (obj.hasOwnProperty(key)) {
       const value = obj[key];
-      if (value && typeof value === "object" && !Array.isArray(value)) {
-        console.log("flattening key", key, value);
 
+      checkForDots(key);
+
+      if (value && typeof value === "object" && !Array.isArray(value)) {
         const nested = await flattenObject(value);
         for (const nestedKey in nested) {
-          if (
-            typeof nested[nestedKey] === "string" &&
-            nested[nestedKey].includes(".")
-          ) {
-            Logger.warn(
-              `Found a dot in the key "${nestedKey}", this may cause issues with next-intl`
-            );
-          }
           // lets temporarily replace the dot with a special charatcer combo to avoid conflicts
           flattened[`${key}.${nestedKey}`] = nested[nestedKey].replace(
             ".",
             "::"
           );
-          console.log(
-            "flattened key",
-            `${key}.${nestedKey}`,
-            nested[nestedKey]
-          );
         }
       } else {
         if (typeof value === "string" && value.includes(".")) {
-          // lets temporarily replace the dot with a special charatcer combo to avoid conflicts
-          Logger.warn(
-            `Found a dot in the key "${key}", this may cause issues with next-intl`
-          );
-          console.log("flattened key", key, value);
           const escapedKey = key.replace(".", "::");
           flattened[escapedKey] = value.replace(".", "::");
-          console.log("flattened key", key, flattened[key]);
         } else {
           flattened[key] = value;
         }

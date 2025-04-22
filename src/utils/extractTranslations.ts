@@ -4,7 +4,11 @@ import { glob } from "glob";
 import Logger from "./logger";
 import type { Config, DefaultOptions } from "./types";
 import { translateBatch } from "./translate";
-import { flattenObject, restoreNamespaces } from "./objectHelpers";
+import {
+  checkForDots,
+  flattenObject,
+  restoreNamespaces,
+} from "./objectHelpers";
 
 interface Translation {
   nameSpace: string;
@@ -99,24 +103,60 @@ const extractTranslations = async (config: Config, options: DefaultOptions) => {
           "$1"
         ) || "";
 
+      // Detect both standard hook usage (with optional args) and custom hook usage
       const standardHookRegex = /\bt\s*\(\s*['"`]([^'"`]+?)['"`]/g;
+      const customHookRegex =
+        /\bt\s*\(\s*['"`]([^'"`]+?)['"`]\s*,\s*\{[^}]*\}\s*,\s*['"`]([^'"`]+?)['"`]/g;
 
       let match;
+      const customHookKeys = new Set<string>();
 
+      while ((match = customHookRegex.exec(source)) !== null) {
+        const key = match[1];
+        const message = match[2];
+
+        checkForDots(key);
+
+        if (nameSpace) {
+          batchTranslations.push({
+            nameSpace,
+            string: message,
+            messageKey: key,
+          });
+        } else {
+          batchTranslations.push({
+            nameSpace: "",
+            string: message,
+            messageKey: key,
+          });
+        }
+        customHookKeys.add(key);
+      }
+
+      // Then check for standard hook usage (1 or 2 arguments)
       while ((match = standardHookRegex.exec(source)) !== null) {
-        const [_, string] = match;
-
-        batchTranslations.push({
-          nameSpace,
-          string: string,
-          messageKey: string,
-          file,
-        });
+        const key = match[1];
+        // Only add if it's not already added by custom hook
+        if (!customHookKeys.has(key)) {
+          if (nameSpace) {
+            batchTranslations.push({
+              nameSpace,
+              string: key,
+              messageKey: key,
+            });
+          } else {
+            batchTranslations.push({
+              nameSpace: "",
+              string: key,
+              messageKey: key,
+            });
+          }
+        }
       }
 
       // Process custom JSX patterns
       for (const pattern of validCustomPatterns) {
-        const tagRegex = new RegExp(`<${pattern.element}[^>]*>`, "gs");
+        const tagRegex = new RegExp(`<${pattern.element}\\b[^>]*>`, "gs");
         while ((match = tagRegex.exec(source)) !== null) {
           const tag = match[0];
           const attributeRegex =
@@ -132,6 +172,17 @@ const extractTranslations = async (config: Config, options: DefaultOptions) => {
 
             attributes[attrName] = attrValue;
             Logger.info(`Found attribute: ${attrName} = ${attrValue}`);
+          }
+
+          if (attributes[pattern.attributes.messageKey]) {
+            // checkForDots(attributes[pattern.attributes.messageKey]);
+          }
+          if (
+            !attributes[pattern.attributes.messageKey] &&
+            attributes[pattern.attributes.string]
+          ) {
+            //incase we are usign string as a key
+            // checkForDots(attributes[pattern.attributes.string]);
           }
 
           if (
@@ -279,8 +330,7 @@ const extractTranslations = async (config: Config, options: DefaultOptions) => {
           `Original value: "${info.value}"\n` +
           `Different values found: ${Array.from(info.duplicateValues)
             .map((v) => `"${v}"`)
-            .join(", ")}\n` +
-          `Files involved: ${Array.from(info.files).join(", ")}`
+            .join(", ")}\n`
       );
     }
   }
@@ -290,6 +340,7 @@ const extractTranslations = async (config: Config, options: DefaultOptions) => {
     config.outputDirectory,
     `${config.defaultLocale}.json`
   );
+
   const defaultLocaleTranslations = JSON.parse(
     fs.readFileSync(defaultLocaleFile, "utf-8")
   );

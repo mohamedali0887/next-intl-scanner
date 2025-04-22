@@ -1,10 +1,31 @@
 //@ts-nocheck
-import { useTranslations } from "../../src/hooks/useTranslations";
+import { useTranslations as useNextTranslations } from "next-intl";
+
+export const useTranslations = (namespace: string) => {
+  const t = useNextTranslations(namespace);
+
+  return (
+    key: string,
+    args: Record<string, string | number | Date> = {},
+    _message: string
+  ) => {
+    return t(key, args);
+  };
+};
 
 const TestWithHook = () => {
   const t = useTranslations("customHook");
 
-  return <div>{t("Test Message")}</div>;
+  return (
+    <div>
+      {t(
+        "anErrorOccurredDuringAuthenticationPleaseTryAgainLaterOrContactSupport",
+        {},
+        "An error occurred during authentication, please try again later or contact support."
+      )}
+      {t("testKey", {}, "Test Message")}
+    </div>
+  );
 };
 
 export default TestWithHook;

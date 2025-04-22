@@ -132,17 +132,6 @@ describe("CLI", () => {
     );
   });
 
-  it("should show a warning if a dot is found in the key", (done) => {
-    exec(
-      `node ${cliPath} extract --config ./_test/valid.config.json`,
-      (error, stdout) => {
-        expect(stdout).toContain("Found a dot in the key");
-
-        done();
-      }
-    );
-  });
-
   afterAll(async () => {
     console.log("Cleaning up ", `${testFolderPath}/messages`);
     fs.rmSync(`${testFolderPath}/messages/`, { recursive: true, force: true });

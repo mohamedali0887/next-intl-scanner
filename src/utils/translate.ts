@@ -5,21 +5,14 @@ const translate = new v2.Translate({
   key: process.env.GOOGLE_TRANSLATE_API_KEY as string,
 });
 
+// Maximum number of strings to translate in a single request
 const BATCH_SIZE = 100;
 
-// Add translation validation helpers
-interface TranslationMetadata {
-  category: "email" | "password" | "auth" | "general";
-  expectedTerms?: string[];
-  expectedTranslation?: string; // Add exact expected translation
-}
-
-// First, let's create a helper function to batch the translations
 async function batchTranslateStrings(
-  strings: string[],
+  content: Record<string, string>,
   sourceLocale: string,
   targetLocale: string
-): Promise<string[]> {
+): Promise<Record<string, string>> {
   try {
     if (!process.env.GOOGLE_TRANSLATE_API_KEY) {
       Logger.error("GOOGLE_TRANSLATE_API_KEY is not set");
@@ -28,22 +21,43 @@ async function batchTranslateStrings(
 
     // Skip if source and target locales are the same
     if (sourceLocale === targetLocale) {
-      return strings;
+      return content;
     }
 
     Logger.info(
-      `Translating ${strings.length} strings from ${sourceLocale} to ${targetLocale}`
+      `Translating ${
+        Object.keys(content).length
+      } strings from ${sourceLocale} to ${targetLocale}`
     );
 
-    const [translations] = await translate.translate(strings, {
-      from: sourceLocale,
-      to: targetLocale,
-    });
+    const keys = Object.keys(content);
+    const values = Object.values(content);
+    const translatedContent: Record<string, string> = {};
 
-    return Array.isArray(translations) ? translations : [translations];
+    // Process translations in chunks
+    for (let i = 0; i < values.length; i += BATCH_SIZE) {
+      const chunk = values.slice(i, i + BATCH_SIZE);
+      Logger.info(
+        `Processing batch ${Math.floor(i / BATCH_SIZE) + 1} of ${Math.ceil(
+          values.length / BATCH_SIZE
+        )}`
+      );
+
+      const [translations] = await translate.translate(chunk, {
+        from: sourceLocale,
+        to: targetLocale,
+      });
+
+      // Map translations back to their keys
+      for (let j = 0; j < chunk.length; j++) {
+        translatedContent[keys[i + j]] = translations[j];
+      }
+    }
+
+    return translatedContent;
   } catch (error) {
     Logger.error(`Translation failed: ${error}`);
-    return strings;
+    return content;
   }
 }
 
@@ -52,17 +66,13 @@ export async function translateBatch(
   sourceLocale: string,
   targetLocale: string
 ) {
-  const translatedContent: Record<string, string> = {};
+  const translated = await batchTranslateStrings(
+    content,
+    sourceLocale,
+    targetLocale
+  );
 
   //now for each key in the content, we need to translate the value
-  for (const [key, value] of Object.entries(content)) {
-    const translatedValue = await batchTranslateStrings(
-      [value],
-      sourceLocale,
-      targetLocale
-    );
-    translatedContent[key] = translatedValue[0];
-  }
 
-  return translatedContent;
+  return translated;
 }
