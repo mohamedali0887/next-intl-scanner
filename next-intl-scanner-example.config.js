@@ -1,4 +1,5 @@
 module.exports = {
+  defaultLocale: "en",
   locales: ["en", "ar"], // array of locales used in i18n.t
   sourceDirectory: "./", // source directory to scan for i18n keys
   outputDirectory: "./messages", // output directory for generated json files
@@ -15,6 +16,7 @@ module.exports = {
       attributes: {
         namespace: "namespace", // attribute name to get namespace
         string: "string", // attribute name to get id
+        messageKey: "messageKey", // attribute name to get messageKey
       },
     },
   ], // custom JSX components to scan

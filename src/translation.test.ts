@@ -33,7 +33,13 @@ describe("Translation Tests", () => {
   const testFolderPath = path.resolve(process.cwd(), "_test");
 
   beforeEach(() => {
-    const arFile = `${testFolderPath}/messages/ar.json`;
+    const messagesDir = `${testFolderPath}/messages`;
+    // Create messages directory if it doesn't exist
+    if (!fs.existsSync(messagesDir)) {
+      fs.mkdirSync(messagesDir, { recursive: true });
+    }
+
+    const arFile = `${messagesDir}/ar.json`;
     if (fs.existsSync(arFile)) {
       fs.unlinkSync(arFile);
     }
@@ -48,10 +54,10 @@ describe("Translation Tests", () => {
       `${testFolderPath}/messages/ar.json`,
       JSON.stringify(testTranslations, null, 2)
     );
+    console.log("testTranslations", testTranslations);
 
     //lets set a fake  API KEY
     process.env.GOOGLE_TRANSLATE_API_KEY = "fake-api-key";
-    console.log(process.env.GOOGLE_TRANSLATE_API_KEY);
     await runCli([
       "extract",
       "--config",
@@ -62,6 +68,8 @@ describe("Translation Tests", () => {
     const arTranslations = JSON.parse(
       fs.readFileSync(`${testFolderPath}/messages/ar.json`, "utf-8")
     );
+
+    console.log("arTranslations after", arTranslations);
 
     expect(arTranslations["Hello Test!"]).toBe("مرحبا بالعالم!");
     expect(arTranslations["Hello World!"]).toBe("مرحبا بالعالم!");
@@ -70,12 +78,14 @@ describe("Translation Tests", () => {
   it("should preserve existing translations when auto-translating", async () => {
     const existingTranslations = {
       customKey: "قيمة موجودة",
-      "Hello Test!": "مرحبا بالعالم!",
+      "Hello Test!": "مرحبا بالاختبار!",
     };
     fs.writeFileSync(
       `${testFolderPath}/messages/ar.json`,
       JSON.stringify(existingTranslations, null, 2)
     );
+
+    console.log("existingTranslations before ", existingTranslations);
 
     await runCli([
       "extract",
@@ -87,8 +97,9 @@ describe("Translation Tests", () => {
     const arTranslations = JSON.parse(
       fs.readFileSync(`${testFolderPath}/messages/ar.json`, "utf-8")
     );
+    console.log("arTranslations after ", arTranslations);
 
     expect(arTranslations["customKey"]).toBe("قيمة موجودة");
-    expect(arTranslations["Hello Test!"]).toBe("مرحبا بالعالم!");
+    expect(arTranslations["Hello Test!"]).toBe("مرحبا بالاختبار!");
   });
 });

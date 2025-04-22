@@ -4,8 +4,9 @@ const App = () => {
   return (
     <div>
       <FormattedMessage
-        namespace={`Formatted message`}
+        namespace={`jsxNamespace`}
         string={`formatted string`}
+        messageKey={`formattedMessageKey`}
       />
       ,
     </div>

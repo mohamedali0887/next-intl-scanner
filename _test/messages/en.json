@@ -1,15 +1,19 @@
 {
-  "Hello Test!": "Hello Test!",
-  "Insert text directly": "Insert text directly",
-  "Hello, {name}! You can use this tool to extract strings for {package}": "Hello, {name}! You can use this tool to extract strings for {package}",
+  "jsxNamespace": {
+    "formattedMessageKey": "formatted string"
+  },
   "customNamespace": {
     "Hello Namespace!": "Hello Namespace!"
   },
-  "customHook": {
-    "testKey": "Test Message."
-  },
+  "Hello Test!": "Hello Test!",
   "Hello World!": "Hello World!",
-  "Formatted message": {
-    "formatted string": "formatted string"
-  }
+  "Test with a": {
+    " dot": "Test with a. dot"
+  },
+  "Insert text directly": "Insert text directly",
+  "Hello, {name}! You can use this tool to extract strings for {package}": "Hello, {name}! You can use this tool to extract strings for {package}",
+  "customHook": {
+    "Test Message": "Test Message"
+  },
+  "Test with a. dot": "Test with a. dot"
 }

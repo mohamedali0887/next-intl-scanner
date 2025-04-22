@@ -1,4 +1,5 @@
-import { it, describe, expect, afterAll } from "@jest/globals";
+import { it, describe, expect, afterAll, jest } from "@jest/globals";
+import fs from "fs";
 import { exec } from "child_process";
 import path from "path";
 
@@ -56,35 +57,65 @@ describe("CLI", () => {
       `node ${cliPath} extract --config ./_test/valid.config.js`,
       (error, stdout) => {
         expect(stdout).toContain("Translations extracted successfully");
+
         done();
       }
     );
+  });
+
+  it("should have the correct translation files", (done) => {
+    // open the file and check the content
+    exec(`cat ~${testFolderPath}/messages/en.json`, async (error, stdout) => {
+      const data = await fs.readFileSync(
+        `${testFolderPath}/messages/en.json`,
+        "utf-8"
+      );
+      const parsedData = JSON.parse(data);
+
+      expect(parsedData["Hello Test!"]).toContain("Hello Test!");
+      expect(parsedData.customNamespace["Hello Namespace!"]).toContain(
+        "Hello Namespace!"
+      );
+
+      expect(parsedData["Ignore"]).toBeUndefined();
+      done();
+    });
+
+    exec(`cat ~${testFolderPath}/messages/en.json`, async (error, stdout) => {
+      const data = await fs.readFileSync(
+        `${testFolderPath}/messages/en.json`,
+        "utf-8"
+      );
+      const parsedData = JSON.parse(data);
+
+      expect(parsedData["Hello Test!"]).toContain("Hello Test!");
+      expect(parsedData["Insert text directly"]).toContain(
+        "Insert text directly"
+      );
+      expect(
+        parsedData[
+          "Hello, {name}! You can use this tool to extract strings for {package}"
+        ]
+      ).toContain(
+        "Hello, {name}! You can use this tool to extract strings for {package}"
+      );
+
+      expect(parsedData.customNamespace["Hello Namespace!"]).toContain(
+        "Hello Namespace!"
+      );
+
+      expect(parsedData["Ignore"]).toBeUndefined();
+      done();
+    });
   });
 
   it("should process the translations with custom json", (done) => {
     exec(
       `node ${cliPath} extract --config ./_test/valid.config.json`,
       (error, stdout) => {
-        try {
-          // Try a more precise match
-          const successMessage = "Translations extracted successfully";
-          const foundIndex = stdout.indexOf(successMessage);
-          const foundSubstring = stdout.substring(
-            foundIndex,
-            foundIndex + successMessage.length
-          );
+        expect(stdout).toContain("Translations extracted successfully");
 
-          // Try both exact match and contains
-          expect(foundSubstring).toBe(successMessage);
-          expect(stdout).toContain(successMessage);
-          done();
-        } catch (err: unknown) {
-          if (err instanceof Error) {
-            done(err);
-          } else {
-            done(new Error(String(err)));
-          }
-        }
+        done();
       }
     );
   });
@@ -95,6 +126,18 @@ describe("CLI", () => {
       `node ${cliPath} extract --config ./_test/valid.config.json`,
       (error, stdout) => {
         expect(stdout).toContain("Translations extracted successfully");
+
+        done();
+      }
+    );
+  });
+
+  it("should show a warning if a dot is found in the key", (done) => {
+    exec(
+      `node ${cliPath} extract --config ./_test/valid.config.json`,
+      (error, stdout) => {
+        expect(stdout).toContain("Found a dot in the key");
+
         done();
       }
     );
@@ -102,7 +145,7 @@ describe("CLI", () => {
 
   afterAll(async () => {
     console.log("Cleaning up ", `${testFolderPath}/messages`);
-    // await rimrafSync(`${testFolderPath}/messages/`);
+    fs.rmSync(`${testFolderPath}/messages/`, { recursive: true, force: true });
     console.log("Done");
   });
 });

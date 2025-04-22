@@ -4,7 +4,7 @@ import { useTranslations } from "../../src/hooks/useTranslations";
 const TestWithHook = () => {
   const t = useTranslations("customHook");
 
-  return <div>{t("testKey", {}, "Test Message.")}</div>;
+  return <div>{t("Test Message")}</div>;
 };
 
 export default TestWithHook;

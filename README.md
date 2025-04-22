@@ -73,6 +73,46 @@ This approach:
 3. Provides a clear separation between build-time and runtime functionality
 4. Gives users flexibility in implementing their own translation hooks
 
+### Using with Custom JSX Elements
+
+you can define a custom jsx element to be used in your project, and the scanner will extract the translations from it.
+
+```typescript
+// components/FormattedMessage.tsx
+"use client";
+import { useTranslations } from "@/hooks/useTranslations";
+
+interface FormattedMessageProps {
+  string: string;
+  namespace?: string;
+  messageKey?: string;
+  params?: Record<string, any>;
+}
+
+const FormattedMessage = (props: FormattedMessageProps) => {
+  const { string, namespace, messageKey, params } = props;
+  const t = useTranslations(namespace || "");
+  const finalKey = messageKey || string;
+
+  return <>{t(finalKey, params || {}, string)}</>;
+};
+
+export default FormattedMessage;
+```
+
+Then use the custom element like this :
+
+```typescript
+<FormattedMessage
+  string="Hello, {name}!"
+  namespace="customNamespace"
+  params={{ name: "John" }}
+  messageKey="hello"
+/>
+```
+
+This way you can use the custom jsx element in your project, and the scanner will extract the translations from it.
+
 #### Extract with Auto-translation
 
 ```bash

@@ -9,6 +9,7 @@ const Test = () => {
     <div>
       <h1>{t("Hello Test!")}</h1>
       <h1>{t("Hello World!")}</h1>
+      {/* <h1>{t("Test with a. dot")}</h1> */}
       <h2>{t(`Insert text directly`)}</h2>
       <h3>
         {t(

@@ -3,7 +3,15 @@ import path from "path";
 import { glob } from "glob";
 import Logger from "./logger";
 import type { Config, DefaultOptions } from "./types";
-import { translateContent } from "./translate";
+import { translateBatch } from "./translate";
+import { flattenObject, restoreNamespaces } from "./objectHelpers";
+
+interface Translation {
+  nameSpace: string;
+  string: string;
+  messageKey: string;
+  file?: string;
+}
 
 const extractTranslations = async (config: Config, options: DefaultOptions) => {
   if (!config) {
@@ -52,15 +60,28 @@ const extractTranslations = async (config: Config, options: DefaultOptions) => {
     fs.mkdirSync(config.outputDirectory, { recursive: true });
   }
 
+  //create files for all locales if they don't exist
+  for (const locale of config.locales) {
+    const localeFile = path.resolve(config.outputDirectory, `${locale}.json`);
+    if (!fs.existsSync(localeFile)) {
+      fs.writeFileSync(localeFile, "{}");
+    }
+  }
+
+  // Add before the batch processing loop
+  const duplicateKeyMap = new Map<
+    string,
+    {
+      value: string;
+      files: Set<string>;
+      duplicateValues: Set<string>;
+    }
+  >();
+
   // Process files in batches
   for (let i = 0; i < allFiles.length; i += BATCH_SIZE) {
     const batch = allFiles.slice(i, i + BATCH_SIZE);
-    const batchTranslations: {
-      nameSpace: string;
-      string: string;
-      message?: string;
-      key?: string;
-    }[] = [];
+    const batchTranslations: Translation[] = [];
 
     for (const file of batch) {
       const source = fs.readFileSync(file, "utf-8");
@@ -78,37 +99,19 @@ const extractTranslations = async (config: Config, options: DefaultOptions) => {
           "$1"
         ) || "";
 
-      // Process translations
-      const customHookRegex =
-        /\bt\s*\(\s*['"`]([^'"`]+?)['"`]\s*,\s*\{[^}]*\}\s*,\s*['"`]([^'"`]+?)['"`]/g;
       const standardHookRegex = /\bt\s*\(\s*['"`]([^'"`]+?)['"`]/g;
 
       let match;
-      const customHookKeys = new Set<string>();
 
-      // Process custom hooks
-      while ((match = customHookRegex.exec(source)) !== null) {
-        const [_, key, message] = match;
+      while ((match = standardHookRegex.exec(source)) !== null) {
+        const [_, string] = match;
+
         batchTranslations.push({
           nameSpace,
-          string: key,
-          message,
-          key: nameSpace ? undefined : key,
+          string: string,
+          messageKey: string,
+          file,
         });
-        customHookKeys.add(key);
-      }
-
-      // Process standard hooks
-      while ((match = standardHookRegex.exec(source)) !== null) {
-        const [_, key] = match;
-        if (!customHookKeys.has(key)) {
-          batchTranslations.push({
-            nameSpace,
-            string: key,
-            message: key,
-            key: nameSpace ? undefined : key,
-          });
-        }
       }
 
       // Process custom JSX patterns
@@ -117,7 +120,7 @@ const extractTranslations = async (config: Config, options: DefaultOptions) => {
         while ((match = tagRegex.exec(source)) !== null) {
           const tag = match[0];
           const attributeRegex =
-            /(\w+)\s*=\s*(?:{[`'"](.+?)[`'"]}|[`'"](.+?)[`'"])/g;
+            /(\w+)\s*=\s*(?:{[`'"](.*?)[`'"]}|[`'"](.*?)[`'"])/g;
           const attributes: Record<string, string> = {};
 
           let attributeMatch;
@@ -135,11 +138,11 @@ const extractTranslations = async (config: Config, options: DefaultOptions) => {
             attributes[pattern.attributes.string] &&
             attributes[pattern.attributes.namespace]
           ) {
-            const translation = {
+            const translation: Translation = {
               nameSpace: attributes[pattern.attributes.namespace],
               string: attributes[pattern.attributes.string],
-              message: attributes[pattern.attributes.string],
-              key: attributes[pattern.attributes.key] || undefined,
+              messageKey: attributes[pattern.attributes.messageKey],
+              file,
             };
             Logger.info(
               `Found FormattedMessage translation: ${JSON.stringify(
@@ -147,6 +150,36 @@ const extractTranslations = async (config: Config, options: DefaultOptions) => {
               )}`
             );
             batchTranslations.push(translation);
+          }
+        }
+      }
+
+      // Add duplicate messageKey detection before processing translations
+      for (const translation of batchTranslations) {
+        const { nameSpace, string, messageKey } = translation;
+        if (nameSpace && messageKey) {
+          const mapKey = `${nameSpace}.${messageKey}`;
+          const existing = duplicateKeyMap.get(mapKey);
+
+          if (existing) {
+            existing.files.add(translation.file || "unknown");
+
+            if (existing.value !== string) {
+              existing.duplicateValues.add(string);
+              Logger.warn(
+                `Duplicate messageKey "${messageKey}" in namespace "${nameSpace}" has different values:\n` +
+                  `  - "${existing.value}" in ${Array.from(existing.files).join(
+                    ", "
+                  )}\n` +
+                  `  - "${string}" in ${translation.file || "unknown"}`
+              );
+            }
+          } else {
+            duplicateKeyMap.set(mapKey, {
+              value: string,
+              files: new Set([translation.file || "unknown"]),
+              duplicateValues: new Set(),
+            });
           }
         }
       }
@@ -169,6 +202,29 @@ const extractTranslations = async (config: Config, options: DefaultOptions) => {
             localeTranslations = JSON.parse(
               fs.readFileSync(localeFile, "utf-8")
             );
+
+            // now lets format all this to add it to the file
+            for (const translation of batchTranslations) {
+              const { nameSpace, string, messageKey } = translation;
+
+              if (nameSpace) {
+                if (!localeTranslations[nameSpace]) {
+                  localeTranslations[nameSpace] = {};
+                }
+                const namespaceObj = localeTranslations[nameSpace] as Record<
+                  string,
+                  string
+                >;
+                const translationKey = messageKey || string;
+                if (options.overwrite || !namespaceObj[translationKey]) {
+                  namespaceObj[translationKey] = string;
+                }
+              } else {
+                if (options.overwrite || !localeTranslations[string]) {
+                  localeTranslations[string] = string;
+                }
+              }
+            }
           } catch (error) {
             Logger.error(
               `Error parsing JSON file for locale ${locale}: ${error}`
@@ -178,7 +234,7 @@ const extractTranslations = async (config: Config, options: DefaultOptions) => {
 
         // Process translations for this batch
         for (const translation of batchTranslations) {
-          const { nameSpace, string, message, key } = translation;
+          const { nameSpace, string, messageKey } = translation;
           if (isNaN(Number(string))) {
             if (nameSpace) {
               if (!localeTranslations[nameSpace]) {
@@ -188,26 +244,15 @@ const extractTranslations = async (config: Config, options: DefaultOptions) => {
                 string,
                 string
               >;
-              const translationKey = key || string;
+              const translationKey = messageKey || string;
               if (options.overwrite || !namespaceObj[translationKey]) {
-                namespaceObj[translationKey] = message || string;
+                namespaceObj[translationKey] = string;
               }
             } else if (options.overwrite || !localeTranslations[string]) {
-              const translationKey = key || string;
-              localeTranslations[translationKey] = message || string;
+              const translationKey = messageKey || string;
+              localeTranslations[translationKey] = string;
             }
           }
-        }
-
-        // Auto-translate if enabled and not the default locale
-        if (options.autoTranslate && locale !== options.defaultLocale) {
-          Logger.info(`Auto-translating content for locale: ${locale}`);
-          const translatedContent = await translateContent(
-            localeTranslations,
-            options.defaultLocale || config.defaultLocale,
-            locale
-          );
-          localeTranslations = translatedContent;
         }
 
         fs.writeFileSync(
@@ -218,6 +263,104 @@ const extractTranslations = async (config: Config, options: DefaultOptions) => {
           `Translations for locale ${locale} written to ${localeFile}`
         );
       }
+    }
+  }
+
+  // At the end of processing, show summary of duplicates if any
+  const duplicatesFound = Array.from(duplicateKeyMap.entries()).filter(
+    ([_, info]) => info.duplicateValues.size > 0
+  );
+
+  if (duplicatesFound.length > 0) {
+    Logger.warn("\nSummary of duplicate messageKeys with different values:");
+    for (const [messageKey, info] of duplicatesFound) {
+      Logger.warn(
+        `\nmessageKey: ${messageKey}\n` +
+          `Original value: "${info.value}"\n` +
+          `Different values found: ${Array.from(info.duplicateValues)
+            .map((v) => `"${v}"`)
+            .join(", ")}\n` +
+          `Files involved: ${Array.from(info.files).join(", ")}`
+      );
+    }
+  }
+
+  //now lets read default locale file and flatten it
+  const defaultLocaleFile = path.resolve(
+    config.outputDirectory,
+    `${config.defaultLocale}.json`
+  );
+  const defaultLocaleTranslations = JSON.parse(
+    fs.readFileSync(defaultLocaleFile, "utf-8")
+  );
+
+  //now lets flatten the default locale translations
+  const flattenedDefaultLocaleTranslations = await flattenObject(
+    defaultLocaleTranslations
+  );
+
+  // now that we have all files ready, lets see if auto translate is enabled
+  if (options.autoTranslate) {
+    //lets read the file of default locale
+    const defaultLocaleFile = path.resolve(
+      config.outputDirectory,
+      `${config.defaultLocale}.json`
+    );
+    const defaultLocaleTranslations = JSON.parse(
+      fs.readFileSync(defaultLocaleFile, "utf-8")
+    );
+
+    // we need to translate all the files
+    for (const locale of config.locales) {
+      const localeFile = path.resolve(config.outputDirectory, `${locale}.json`);
+
+      //for each locale file , we can do a batch translation
+      const localeTranslations = JSON.parse(
+        fs.readFileSync(localeFile, "utf-8")
+      );
+
+      // existing locale translations
+
+      const flattenedLocaleTranslations = await flattenObject(
+        localeTranslations
+      );
+
+      //lets try  to restore and test
+      const restoredLocaleTranslations = await restoreNamespaces(
+        flattenedLocaleTranslations
+      );
+
+      const untranslated: Record<string, string> = {};
+      for (const key in flattenedDefaultLocaleTranslations) {
+        if (
+          flattenedDefaultLocaleTranslations[key] ===
+          flattenedLocaleTranslations[key]
+        ) {
+          untranslated[key] = flattenedDefaultLocaleTranslations[key];
+        }
+      }
+
+      //now lets translate these then merge them with the existing translations
+      const translatedUnstranslated = await translateBatch(
+        untranslated,
+        config.defaultLocale,
+        locale
+      );
+
+      //now lets merge the translated and the existing translations
+      const mergedTranslations = {
+        ...restoredLocaleTranslations,
+        ...translatedUnstranslated,
+      };
+
+      //now lets restore the namespaces
+      const restoredTranslations = await restoreNamespaces(mergedTranslations);
+
+      //now lets write the translations to the file
+      fs.writeFileSync(
+        localeFile,
+        JSON.stringify(restoredTranslations, null, 2)
+      );
     }
   }
 

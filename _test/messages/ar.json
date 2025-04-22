@@ -1,16 +1,19 @@
 {
-  "customKey": "قيمة موجودة",
-  "Hello Test!": "مرحبا بالعالم!",
-  "Hello World!": "Hello World!",
-  "Insert text directly": "Insert text directly",
-  "Hello, {name}! You can use this tool to extract strings for {package}": "Hello, {name}! You can use this tool to extract strings for {package}",
+  "jsxNamespace": {
+    "formattedMessageKey": "سلسلة منسقة"
+  },
   "customNamespace": {
-    "Hello Namespace!": "Hello Namespace!"
+    "Hello Namespace!": "مرحباً بالمساحة الاسمية!"
   },
+  "Hello Test!": "مرحبا بالاختبار!",
+  "Hello World!": "مرحبا بالعالم!",
+  "Test with a": {
+    " dot": "Test with a. dot"
+  },
+  "Insert text directly": "إدراج النص مباشرة",
+  "Hello, {name}! You can use this tool to extract strings for {package}": "مرحباً، {name}! يمكنك استخدام هذه الأداة لاستخراج سلاسل نصية لـ {package}.",
   "customHook": {
-    "testKey": "Test Message."
+    "Test Message": "رسالة الاختبار"
   },
-  "Formatted message": {
-    "formatted string": "formatted string"
-  }
+  "Test with a. dot": "اختبار مع نقطة."
 }

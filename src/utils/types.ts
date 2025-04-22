@@ -16,7 +16,7 @@ export type Config = {
     attributes: {
       namespace: string;
       string: string;
-      key: string;
+      messageKey: string;
     };
   }[];
   pages: {

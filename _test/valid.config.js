@@ -14,6 +14,7 @@ module.exports = {
       attributes: {
         namespace: "namespace", // attribute name to get namespace
         string: "string", // attribute name to get id
+        messageKey: "messageKey", // attribute name to get messageKey
       },
     },
   ], // custom JSX components to scan
