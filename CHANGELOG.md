@@ -5,17 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.1] - 2024-03-19
+## [1.1.2] - 2024-03-19
 
-### Added
+### Removed
 
-- Type declarations for all exported functions and interfaces
-- Improved TypeScript support with better type inference
+- Custom Hooks , and added the useTranslations hook to the readme file
 
 ### Fixed
 
-- Fixed type inference issues in translation functions
-- Resolved TypeScript compatibility issues
+- Fixed a bug where the scanner would not work with custom jsx elements
+- fixed a memory leak
 
 ## [1.1.0] - 2024-03-19
 
