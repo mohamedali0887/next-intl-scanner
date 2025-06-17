@@ -97,11 +97,22 @@ const extractTranslations = async (config: Config, options: DefaultOptions) => {
       const nameSpaceMatch = source.match(
         /\buseTranslations\(['"](.+?)['"]\)/g
       );
-      const nameSpace =
+      let nameSpace =
         nameSpaceMatch?.[0]?.replace(
           /\buseTranslations\(['"](.+?)['"]\)/,
           "$1"
         ) || "";
+
+      // Also match server-side getTranslations usage
+      const getTranslationsMatch = source.match(
+        /getTranslations\s*\(\s*[^,]+,\s*['"](.+?)['"]\s*\)/g
+      );
+      if (getTranslationsMatch && getTranslationsMatch[0]) {
+        const extracted = getTranslationsMatch[0].match(/getTranslations\s*\(\s*[^,]+,\s*['"](.+?)['"]\s*\)/);
+        if (extracted && extracted[1]) {
+          nameSpace = extracted[1];
+        }
+      }
 
       // Detect both standard hook usage (with optional args) and custom hook usage
       const standardHookRegex = /\bt\s*\(\s*['"`]([^'"`]+?)['"`]/g;
@@ -219,9 +230,7 @@ const extractTranslations = async (config: Config, options: DefaultOptions) => {
               existing.duplicateValues.add(string);
               Logger.warn(
                 `Duplicate messageKey "${messageKey}" in namespace "${nameSpace}" has different values:\n` +
-                  `  - "${existing.value}" in ${Array.from(existing.files).join(
-                    ", "
-                  )}\n` +
+                  `  - "${existing.value}" in ${Array.from(existing.files).join(", ")}\n` +
                   `  - "${string}" in ${translation.file || "unknown"}`
               );
             }
