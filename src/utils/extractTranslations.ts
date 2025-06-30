@@ -116,16 +116,40 @@ const extractTranslations = async (config: Config, options: DefaultOptions) => {
 
       // Detect both standard hook usage (with optional args) and custom hook usage
       const standardHookRegex = /\bt\s*\(\s*['"`]([^'"`]+?)['"`]/g;
-      const customHookRegex =
-        /\bt\s*\(\s*['"`]([^'"`]+?)['"`]\s*,\s*\{[^}]*\}\s*,\s*['"`]([^'"`]+?)['"`]/g;
+      
+      // Function to extract custom hook usage with proper quote handling
+      const extractCustomHookUsage = (source: string) => {
+        const results: Array<{ key: string; message: string }> = [];
+        
+        // Find all t() function calls with 3 arguments
+        const functionCallRegex = /\bt\s*\(\s*([^,]+?)\s*,\s*\{[^}]*\}\s*,\s*([^)]+?)\s*\)/g;
+        
+        let match;
+        while ((match = functionCallRegex.exec(source)) !== null) {
+          const keyArg = match[1].trim();
+          const messageArg = match[2].trim();
+          
+          // Extract the string content from the arguments
+          const keyMatch = keyArg.match(/^['"`](.*)['"`]$/);
+          const messageMatch = messageArg.match(/^['"`](.*)['"`]$/);
+          
+          if (keyMatch && messageMatch) {
+            const key = keyMatch[1];
+            const message = messageMatch[1];
+            
+            results.push({ key, message });
+          }
+        }
+        
+        return results;
+      };
 
       let match;
       const customHookKeys = new Set<string>();
 
-      while ((match = customHookRegex.exec(source)) !== null) {
-        const key = match[1];
-        const message = match[2];
-
+      // Extract custom hook usage
+      const customHookResults = extractCustomHookUsage(source);
+      for (const { key, message } of customHookResults) {
         checkForDots(key);
 
         if (nameSpace) {
