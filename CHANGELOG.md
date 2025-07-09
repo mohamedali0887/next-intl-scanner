@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.6] - 2025-01-XX
+
+### Added
+- Enhanced custom hook extraction with robust quote handling
+- Support for translation strings containing single quotes, double quotes, and escaped quotes
+- Comprehensive test cases for various quote scenarios
+
+### Fixed
+- Custom hook namespace extraction now properly nests translations under their respective namespaces
+- Regex patterns now handle complex quote patterns in translation strings
+- Improved extraction reliability for real-world translation scenarios
+
+### Changed
+- Standardized on custom translation hook usage for consistent extraction
+- Updated test components to use only custom hooks for better maintainability
+
+## [1.1.5]
+### Fixed 
+- Node v24 compatibility
+- Issues with ' breaking translations 
+
+
+
 ## [1.1.4] - 2025-06-17
 
 ### Added

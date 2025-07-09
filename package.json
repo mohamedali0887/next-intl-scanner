@@ -30,7 +30,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@google-cloud/translate": "^9.0.1",
+    "@google-cloud/translate": "^9.1.0",
     "@types/node": "^22.14.1",
     "chalk": "^4.1.0",
     "commander": "^9.4.1",

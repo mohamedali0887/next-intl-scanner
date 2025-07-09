@@ -24,6 +24,7 @@ const TestWithHook = () => {
         "An error occurred during authentication, please try again later or contact support."
       )}
       {t("testKey", {}, "Test Message")}
+      {t("test2", {}, "Don't")}
     </div>
   );
 };
