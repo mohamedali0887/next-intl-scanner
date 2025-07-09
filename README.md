@@ -131,11 +131,35 @@ npx next-intl-scanner extract --config ./custom.config.js
 npx next-intl-scanner extract --overwrite
 ```
 
+#### Watch Mode
+
+Run the scanner in watch mode to automatically re-extract translations when files change:
+
+```bash
+npx next-intl-scanner extract --watch
+```
+
+You can also combine watch mode with other options:
+
+```bash
+npx next-intl-scanner extract --watch --overwrite
+npx next-intl-scanner extract --watch --auto-translate
+```
+
+The watch mode will:
+
+- Perform an initial extraction
+- Monitor your source directories for file changes
+- Automatically re-extract translations when relevant files are modified
+- Display which files triggered the re-extraction
+- Continue running until you stop it with Ctrl+C
+
 ### Command Line Options
 
 - `--config <path>`: Path to configuration file (default: `./next-intl-scanner.config.js`)
 - `--auto-translate`: Enable auto-translation of extracted strings
 - `--overwrite`: Overwrite existing translations (use with caution)
+- `--watch`: Watch for file changes and automatically re-extract translations
 - `--version`: Display version information
 - `--help`: Display help information
 
@@ -182,6 +206,7 @@ Add the scanner to your build process by updating your `package.json`:
 {
   "scripts": {
     "extract-translations": "next-intl-scanner extract",
+    "extract-translations:watch": "next-intl-scanner extract --watch",
     "build": "next-intl-scanner extract && next build"
   }
 }
@@ -197,6 +222,7 @@ Add the scanner to your build process by updating your `package.json`:
 - ⚠️ **Error Handling**: Comprehensive error reporting and logging
 - 🔄 **Configurable**: Highly customizable through configuration options
 - 🛠️ **Developer Friendly**: Simple CLI interface with helpful commands
+- 👀 **Watch Mode**: Monitor files for changes and automatically re-extract translations
 
 ## Best Practices
 

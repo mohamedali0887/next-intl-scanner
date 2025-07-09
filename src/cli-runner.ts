@@ -30,6 +30,11 @@ export async function runCli(args: string[]) {
       "Remove unused translation keys from output files",
       false
     )
+    .option(
+      "--watch",
+      "Watch for file changes and automatically re-extract translations",
+      false
+    )
     .description("Extracts translations from source files")
     .addHelpText(
       "after",
@@ -39,6 +44,8 @@ Examples:
   $ next-intl-scanner extract --overwrite
   $ next-intl-scanner extract --auto-translate
   $ next-intl-scanner extract --overwrite --auto-translate
+  $ next-intl-scanner extract --watch
+  $ next-intl-scanner extract --watch --overwrite
   `
     )
     .action(async (options) => {
@@ -56,6 +63,7 @@ Examples:
         autoTranslate: options.autoTranslate,
         defaultLocale: config.defaultLocale,
         clean: options.clean,
+        watch: options.watch,
       });
     });
 

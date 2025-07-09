@@ -1,0 +1,33 @@
+{
+  "sourceDirectory": "_test/components",
+  "outputDirectory": "_test/messages",
+  "locales": ["en", "ar"],
+  "defaultLocale": "en",
+  "pages": [
+    {
+      "match": "Test.tsx",
+      "ignore": ["DeepNestedTest.tsx"]
+    },
+    {
+      "match": "TestWithHook.tsx",
+      "ignore": ["DeepNestedTest.tsx"]
+    },
+    {
+      "match": "ServerHook.tsx",
+      "ignore": ["DeepNestedTest.tsx"]
+    },
+    {
+      "match": "NamespaceTest.tsx",
+      "ignore": ["DeepNestedTest.tsx"]
+    },
+    {
+      "match": "MultiNamespaceTest.tsx",
+      "ignore": ["DeepNestedTest.tsx"]
+    },
+    {
+      "match": "FormattedMessage.tsx",
+      "ignore": ["DeepNestedTest.tsx"]
+    }
+  ],
+  "ignore": []
+}

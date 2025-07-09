@@ -1,25 +1,46 @@
 module.exports = {
+  // Source directory to scan
+  sourceDirectory: "src",
+
+  // Output directory for translation files
+  outputDirectory: "src/locales",
+
+  // Supported locales
+  locales: ["en", "ar", "fr", "es"],
+
+  // Default locale
   defaultLocale: "en",
-  locales: ["en", "ar"], // array of locales used in i18n.t
-  sourceDirectory: "./", // source directory to scan for i18n keys
-  outputDirectory: "./messages", // output directory for generated json files
+
+  // Files to scan (supports glob patterns)
   pages: [
-    // pages to scan for i18n keys
     {
-      match: "./src/**/*.{js,jsx,ts,tsx}", // glob pattern to match files
-      ignore: ["**/*.test.{js,jsx,ts,tsx}", "**/_*.js"], // glob pattern to ignore files
+      match: "**/*.{js,jsx,ts,tsx}",
+      ignore: [
+        "**/*.test.{js,jsx,ts,tsx}",
+        "**/*.spec.{js,jsx,ts,tsx}",
+        "**/node_modules/**",
+        "**/dist/**",
+        "**/build/**",
+      ],
     },
   ],
+
+  // Global ignore patterns
+  ignore: ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.next/**"],
+
+  // Custom JSX patterns to extract translations from
   customJSXPattern: [
     {
-      element: "FormattedMessage", // JSX element name
+      element: "FormattedMessage",
       attributes: {
-        namespace: "namespace", // attribute name to get namespace
-        string: "string", // attribute name to get id
-        messageKey: "messageKey", // attribute name to get messageKey
+        namespace: "namespace",
+        string: "string",
+        messageKey: "messageKey",
       },
     },
-  ], // custom JSX components to scan
+  ],
 
-  ignore: ["**/node_modules/**", "**/.next/**"], // glob pattern to ignore directories
+  // Note: Currently only Google Translate API v2 is supported
+  // Make sure that you have set the GOOGLE_TRANSLATE_API_KEY environment variable
+  // If you need support for other translation services, please create an issue on GitHub
 };

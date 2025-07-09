@@ -18,12 +18,12 @@ export const flattenObject = async (obj: Record<string, any>) => {
     if (obj.hasOwnProperty(key)) {
       const value = obj[key];
 
-      // Only check for dots in keys, not values
-      checkForDots(key);
-
       if (value && typeof value === "object" && !Array.isArray(value)) {
+        // This is a nested object (namespace), don't check the key for dots
         const nested = await flattenObject(value);
         for (const nestedKey in nested) {
+          // Check the nested key for dots (these are actual translation keys)
+          checkForDots(nestedKey);
           // lets temporarily replace the dot with a special charatcer combo to avoid conflicts
           flattened[`${key}.${nestedKey}`] = nested[nestedKey].replace(
             ".",
@@ -31,6 +31,8 @@ export const flattenObject = async (obj: Record<string, any>) => {
           );
         }
       } else {
+        // This is a direct key-value pair, check the key for dots
+        checkForDots(key);
         if (typeof value === "string" && value.includes(".")) {
           const escapedKey = key.replace(".", "::");
           flattened[escapedKey] = value.replace(".", "::");

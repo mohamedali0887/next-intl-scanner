@@ -5,6 +5,7 @@ export type DefaultOptions = {
   autoTranslate?: boolean;
   defaultLocale?: string;
   clean?: boolean;
+  watch?: boolean;
 };
 
 export type Config = {
