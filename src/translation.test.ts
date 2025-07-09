@@ -102,4 +102,123 @@ describe("Translation Tests", () => {
     expect(arTranslations["customKey"]).toBe("قيمة موجودة");
     expect(arTranslations["Hello Test!"]).toBe("مرحبا بالاختبار!");
   });
+
+  it("should remove unused translation keys when --clean flag is set", async () => {
+    // Create translation files with some unused keys
+    const translationsWithUnusedKeys = {
+      "jsxNamespace": {
+        "formattedMessageKey": "formatted string with a dot"
+      },
+      "common": {
+        "select-status": "select-status",
+        "all": "all",
+        "unused-key": "This key is not used anywhere"
+      },
+      "validation": {
+        "required-field": "required-field"
+      },
+      "title": "title",
+      "description": "description",
+      "helloNamespace": "Hello Namespace!",
+      "testServerString": "testServerString",
+      "Hello Test!": "Hello Test!",
+      "Hello World!": "Hello World!",
+      "Insert text directly": "Insert text directly",
+      "Hello, {name}! You can use this tool to extract strings for {package}": "Hello, {name}! You can use this tool to extract strings for {package}",
+      "anErrorOccurredDuringAuthenticationPleaseTryAgainLaterOrContactSupport": "anErrorOccurredDuringAuthenticationPleaseTryAgainLaterOrContactSupport",
+      "testKey": "testKey",
+      "unused-global-key": "This global key is not used anywhere"
+    };
+
+    // Write the same content to both en.json and ar.json
+    fs.writeFileSync(
+      `${testFolderPath}/messages/en.json`,
+      JSON.stringify(translationsWithUnusedKeys, null, 2)
+    );
+    fs.writeFileSync(
+      `${testFolderPath}/messages/ar.json`,
+      JSON.stringify(translationsWithUnusedKeys, null, 2)
+    );
+
+    console.log("Translations before cleaning:", translationsWithUnusedKeys);
+
+    // Run extraction with --clean flag
+    await runCli([
+      "extract",
+      "--config",
+      "./_test/valid.config.json",
+      "--clean",
+    ]);
+
+    // Check that unused keys were removed from both files
+    const enTranslations = JSON.parse(
+      fs.readFileSync(`${testFolderPath}/messages/en.json`, "utf-8")
+    );
+    const arTranslations = JSON.parse(
+      fs.readFileSync(`${testFolderPath}/messages/ar.json`, "utf-8")
+    );
+
+    console.log("Translations after cleaning:", enTranslations);
+
+    // Verify that unused keys were removed
+    expect(enTranslations["common"]["unused-key"]).toBeUndefined();
+    expect(arTranslations["common"]["unused-key"]).toBeUndefined();
+    expect(enTranslations["unused-global-key"]).toBeUndefined();
+    expect(arTranslations["unused-global-key"]).toBeUndefined();
+
+    // Verify that used keys are still present
+    expect(enTranslations["common"]["select-status"]).toBe("select-status");
+    expect(arTranslations["common"]["select-status"]).toBe("select-status");
+    expect(enTranslations["Hello Test!"]).toBe("Hello Test!");
+    expect(arTranslations["Hello Test!"]).toBe("Hello Test!");
+    expect(enTranslations["jsxNamespace"]["formattedMessageKey"]).toBe("formatted string with a dot");
+    expect(arTranslations["jsxNamespace"]["formattedMessageKey"]).toBe("formatted string with a dot");
+  });
+
+  it("should not remove any keys when --clean flag is not set", async () => {
+    // Create translation files with some unused keys
+    const translationsWithUnusedKeys = {
+      "common": {
+        "select-status": "select-status",
+        "unused-key": "This key is not used anywhere"
+      },
+      "unused-global-key": "This global key is not used anywhere",
+      "Hello Test!": "Hello Test!"
+    };
+
+    // Write the same content to both en.json and ar.json
+    fs.writeFileSync(
+      `${testFolderPath}/messages/en.json`,
+      JSON.stringify(translationsWithUnusedKeys, null, 2)
+    );
+    fs.writeFileSync(
+      `${testFolderPath}/messages/ar.json`,
+      JSON.stringify(translationsWithUnusedKeys, null, 2)
+    );
+
+    console.log("Translations before extraction (without clean):", translationsWithUnusedKeys);
+
+    // Run extraction without --clean flag
+    await runCli([
+      "extract",
+      "--config",
+      "./_test/valid.config.json",
+    ]);
+
+    // Check that unused keys are still present
+    const enTranslations = JSON.parse(
+      fs.readFileSync(`${testFolderPath}/messages/en.json`, "utf-8")
+    );
+    const arTranslations = JSON.parse(
+      fs.readFileSync(`${testFolderPath}/messages/ar.json`, "utf-8")
+    );
+
+    console.log("Translations after extraction (without clean):", enTranslations);
+
+    // Verify that unused keys are still present
+    expect(enTranslations["common"]["unused-key"]).toBe("This key is not used anywhere");
+    expect(arTranslations["common"]["unused-key"]).toBe("This key is not used anywhere");
+    expect(enTranslations["unused-global-key"]).toBe("This global key is not used anywhere");
+    expect(arTranslations["unused-global-key"]).toBe("This global key is not used anywhere");
+  });
 });

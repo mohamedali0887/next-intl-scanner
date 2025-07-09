@@ -18,6 +18,7 @@ export const flattenObject = async (obj: Record<string, any>) => {
     if (obj.hasOwnProperty(key)) {
       const value = obj[key];
 
+      // Only check for dots in keys, not values
       checkForDots(key);
 
       if (value && typeof value === "object" && !Array.isArray(value)) {

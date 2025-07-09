@@ -5,7 +5,7 @@ const App = () => {
     <div>
       <FormattedMessage
         namespace={`jsxNamespace`}
-        string={`formatted string. with a dot`}
+        string={`formatted string with a dot`}
         messageKey={`formattedMessageKey`}
       />
       ,

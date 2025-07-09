@@ -25,6 +25,11 @@ export async function runCli(args: string[]) {
       "Automatically translate strings using a translation service",
       false
     )
+    .option(
+      "--clean",
+      "Remove unused translation keys from output files",
+      false
+    )
     .description("Extracts translations from source files")
     .addHelpText(
       "after",
@@ -50,6 +55,7 @@ Examples:
         overwrite: options.overwrite,
         autoTranslate: options.autoTranslate,
         defaultLocale: config.defaultLocale,
+        clean: options.clean,
       });
     });
 

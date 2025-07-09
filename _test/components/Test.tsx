@@ -1,8 +1,8 @@
 //@ts-nocheck
-import useTranslations from "next-intl";
+import { useTranslations } from "./TestWithHook";
 
 const Test = () => {
-  const t = useTranslations();
+  const t = useTranslations("");
 
   const test = "test";
   return (

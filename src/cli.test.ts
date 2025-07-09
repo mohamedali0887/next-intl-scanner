@@ -63,6 +63,7 @@ describe("CLI", () => {
     );
   });
 
+
   it("should have the correct translation files", (done) => {
     // open the file and check the content
     exec(`cat ~${testFolderPath}/messages/en.json`, async (error, stdout) => {
@@ -71,9 +72,10 @@ describe("CLI", () => {
         "utf-8"
       );
       const parsedData = JSON.parse(data);
+      console.log(parsedData);
 
       expect(parsedData["Hello Test!"]).toContain("Hello Test!");
-      expect(parsedData.customNamespace["Hello Namespace!"]).toContain(
+      expect(parsedData.customNamespace["helloNamespace"]).toContain(
         "Hello Namespace!"
       );
 
@@ -94,13 +96,13 @@ describe("CLI", () => {
       );
       expect(
         parsedData[
-          "Hello, {name}! You can use this tool to extract strings for {package}"
+        "Hello, {name}! You can use this tool to extract strings for {package}"
         ]
       ).toContain(
         "Hello, {name}! You can use this tool to extract strings for {package}"
       );
 
-      expect(parsedData.customNamespace["Hello Namespace!"]).toContain(
+      expect(parsedData.customNamespace["helloNamespace"]).toContain(
         "Hello Namespace!"
       );
 

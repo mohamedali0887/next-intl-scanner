@@ -8,5 +8,23 @@
       "ignore": ["**/ignore/**"]
     }
   ],
-  "ignore": ["**/node_modules/**", "**/.next/**"]
+  "ignore": ["**/node_modules/**", "**/.next/**"],
+  "customJSXPattern": [
+    {
+      "element": "FormattedMessage",
+      "attributes": {
+        "namespace": "namespace",
+        "string": "string",
+        "messageKey": "key"
+      }
+    },
+    {
+      "element": "FormattedMessage",
+      "attributes": {
+        "namespace": "namespace",
+        "string": "string",
+        "messageKey": "messageKey"
+      }
+    }
+  ]
 }

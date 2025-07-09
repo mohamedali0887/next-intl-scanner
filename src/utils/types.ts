@@ -4,6 +4,7 @@ export type DefaultOptions = {
   overwrite?: boolean;
   autoTranslate?: boolean;
   defaultLocale?: string;
+  clean?: boolean;
 };
 
 export type Config = {

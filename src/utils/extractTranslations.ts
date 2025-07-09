@@ -10,6 +10,39 @@ import {
   restoreNamespaces,
 } from "./objectHelpers";
 
+// Helper function to get all keys from a nested object
+const getAllKeys = (obj: any, prefix = ""): string[] => {
+  const keys: string[] = [];
+  for (const [key, value] of Object.entries(obj)) {
+    const fullKey = prefix ? `${prefix}.${key}` : key;
+    if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+      keys.push(...getAllKeys(value, fullKey));
+    } else {
+      keys.push(fullKey);
+    }
+  }
+  return keys;
+};
+
+// Helper function to remove a key from a nested object
+const removeKeyFromObject = (obj: any, keyPath: string): void => {
+  const keys = keyPath.split(".");
+  let current = obj;
+
+  for (let i = 0; i < keys.length - 1; i++) {
+    if (current[keys[i]] && typeof current[keys[i]] === "object") {
+      current = current[keys[i]];
+    } else {
+      return; // Key path doesn't exist
+    }
+  }
+
+  const lastKey = keys[keys.length - 1];
+  if (current[lastKey] !== undefined) {
+    delete current[lastKey];
+  }
+};
+
 interface Translation {
   nameSpace: string;
   string: string;
@@ -82,6 +115,9 @@ const extractTranslations = async (config: Config, options: DefaultOptions) => {
     }
   >();
 
+  // Collect all extracted keys across all batches for cleaning
+  const allExtractedKeys = new Set<string>();
+
   // Process files in batches
   for (let i = 0; i < allFiles.length; i += BATCH_SIZE) {
     const batch = allFiles.slice(i, i + BATCH_SIZE);
@@ -94,74 +130,89 @@ const extractTranslations = async (config: Config, options: DefaultOptions) => {
         continue;
       }
 
-      const nameSpaceMatch = source.match(
-        /\buseTranslations\(['"](.+?)['"]\)/g
+      // Find all useTranslations calls and their variable names (with or without namespace)
+      // Support both standard next-intl useTranslations and custom useTranslations hooks
+      const useTranslationsMatches = source.matchAll(
+        /(\w+)\s*=\s*useTranslations\((['"](.*?)['"])?\)/g
       );
-      let nameSpace =
-        nameSpaceMatch?.[0]?.replace(
-          /\buseTranslations\(['"](.+?)['"]\)/,
-          "$1"
-        ) || "";
-
-      // Also match server-side getTranslations usage
-      const getTranslationsMatch = source.match(
-        /getTranslations\s*\(\s*[^,]+,\s*['"](.+?)['"]\s*\)/g
-      );
-      if (getTranslationsMatch && getTranslationsMatch[0]) {
-        const extracted = getTranslationsMatch[0].match(/getTranslations\s*\(\s*[^,]+,\s*['"](.+?)['"]\s*\)/);
-        if (extracted && extracted[1]) {
-          nameSpace = extracted[1];
-        }
+      const namespaceMap = new Map<string, string>();
+      for (const match of useTranslationsMatches) {
+        const variableName = match[1];
+        // If group 3 exists, it's the namespace, else default/global
+        const namespace = match[3] !== undefined ? match[3] : "";
+        namespaceMap.set(variableName, namespace);
+        Logger.info(`Found useTranslations: variable=${variableName}, namespace="${namespace}"`);
       }
 
-      // Detect both standard hook usage (with optional args) and custom hook usage
-      const standardHookRegex = /\bt\s*\(\s*['"`]([^'"`]+?)['"`]/g;
-      const customHookRegex =
-        /\bt\s*\(\s*['"`]([^'"`]+?)['"`]\s*,\s*\{[^}]*\}\s*,\s*['"`]([^'"`]+?)['"`]/g;
+      // Also match server-side getTranslations usage
+      // Example: const t = await getTranslations('en', 'customHook')
+      const getTranslationsMatches = source.matchAll(
+        /(\w+)\s*=\s*await\s*getTranslations\([^,]+,\s*['"](.+?)['"]\)/g
+      );
+      for (const match of getTranslationsMatches) {
+        const variableName = match[1];
+        const namespace = match[2];
+        namespaceMap.set(variableName, namespace);
+      }
+
+      // Support custom hooks: const t = useTranslations('namespace')
+      // and also destructured/aliased hooks if possible
+
+      // Updated regex to capture the variable name before the t() call
+      const standardHookRegex = /([\w$]+)\s*\.\s*t\s*\(\s*['"`]([^'"`]+?)['"`]/g;
+      // Flexible custom hook: t('key', ...optionalArgs..., 'message')
+      // This regex matches the same quote at start/end and allows escaped quotes inside
+      const customHookRegex = /([\w$]+)\s*\(\s*(["'`])((?:\\\2|.)*?)\2\s*,\s*(?:\{[^}]*\}|[^,]+)?\s*,\s*(["'`])((?:\\\4|.)*?)\4\s*\)/g;
+      // Also support direct t('key') calls (for default/global namespace)
+      const directTRegex = /\bt\s*\(\s*['"`]([^'"`]+?)['"`]/g;
 
       let match;
       const customHookKeys = new Set<string>();
 
+      // Extract custom hook usage
+      Logger.info(`Searching for custom hook pattern in file: ${file}`);
       while ((match = customHookRegex.exec(source)) !== null) {
-        const key = match[1];
-        const message = match[2];
-
+        const variableName = match[1];
+        const key = match[3].replace(new RegExp('\\' + match[2], 'g'), match[2]);
+        const message = match[5].replace(new RegExp('\\' + match[4], 'g'), match[4]);
         checkForDots(key);
-
-        if (nameSpace) {
-          batchTranslations.push({
-            nameSpace,
-            string: message,
-            messageKey: key,
-          });
-        } else {
-          batchTranslations.push({
-            nameSpace: "",
-            string: message,
-            messageKey: key,
-          });
-        }
+        const nameSpace = namespaceMap.get(variableName) ?? "";
+        Logger.info(`Found custom hook usage: variable=${variableName}, key=\"${key}\", message=\"${message}\", namespace=\"${nameSpace}\"`);
+        batchTranslations.push({
+          nameSpace,
+          string: message,
+          messageKey: key,
+        });
         customHookKeys.add(key);
       }
 
       // Then check for standard hook usage (1 or 2 arguments)
+      Logger.info(`Searching for standard hook pattern in file: ${file}`);
       while ((match = standardHookRegex.exec(source)) !== null) {
-        const key = match[1];
+        const variableName = match[1];
+        const key = match[2];
         // Only add if it's not already added by custom hook
         if (!customHookKeys.has(key)) {
-          if (nameSpace) {
-            batchTranslations.push({
-              nameSpace,
-              string: key,
-              messageKey: key,
-            });
-          } else {
-            batchTranslations.push({
-              nameSpace: "",
-              string: key,
-              messageKey: key,
-            });
-          }
+          const nameSpace = namespaceMap.get(variableName) ?? "";
+          Logger.info(`Found standard hook usage: variable=${variableName}, key="${key}", namespace="${nameSpace}"`);
+          batchTranslations.push({
+            nameSpace,
+            string: key,
+            messageKey: key,
+          });
+        }
+      }
+
+      // Also check for direct t('key') calls (for default/global namespace)
+      while ((match = directTRegex.exec(source)) !== null) {
+        const key = match[1];
+        // Only add if it's not already added by custom hook or standard hook
+        if (!customHookKeys.has(key)) {
+          batchTranslations.push({
+            nameSpace: "",
+            string: key,
+            messageKey: key,
+          });
         }
       }
 
@@ -212,6 +263,14 @@ const extractTranslations = async (config: Config, options: DefaultOptions) => {
               )}`
             );
             batchTranslations.push(translation);
+
+            // Also add to allExtractedKeys for cleaning
+            const key = attributes[pattern.attributes.messageKey] || attributes[pattern.attributes.string];
+            if (attributes[pattern.attributes.namespace]) {
+              allExtractedKeys.add(`${attributes[pattern.attributes.namespace]}.${key}`);
+            } else {
+              allExtractedKeys.add(key);
+            }
           }
         }
       }
@@ -219,6 +278,14 @@ const extractTranslations = async (config: Config, options: DefaultOptions) => {
       // Add duplicate messageKey detection before processing translations
       for (const translation of batchTranslations) {
         const { nameSpace, string, messageKey } = translation;
+
+        // Always add the flattened key for cleaning
+        if (nameSpace) {
+          allExtractedKeys.add(`${nameSpace}.${messageKey || string}`);
+        } else {
+          allExtractedKeys.add(messageKey || string);
+        }
+
         if (nameSpace && messageKey) {
           const mapKey = `${nameSpace}.${messageKey}`;
           const existing = duplicateKeyMap.get(mapKey);
@@ -230,8 +297,8 @@ const extractTranslations = async (config: Config, options: DefaultOptions) => {
               existing.duplicateValues.add(string);
               Logger.warn(
                 `Duplicate messageKey "${messageKey}" in namespace "${nameSpace}" has different values:\n` +
-                  `  - "${existing.value}" in ${Array.from(existing.files).join(", ")}\n` +
-                  `  - "${string}" in ${translation.file || "unknown"}`
+                `  - "${existing.value}" in ${Array.from(existing.files).join(", ")}\n` +
+                `  - "${string}" in ${translation.file || "unknown"}`
               );
             }
           } else {
@@ -326,6 +393,56 @@ const extractTranslations = async (config: Config, options: DefaultOptions) => {
     }
   }
 
+  // Clean unused keys if --clean flag is enabled (after all batches are processed)
+  if (options.clean && config.locales?.length) {
+    for (const locale of config.locales) {
+      const localeFile = path.resolve(
+        config.outputDirectory,
+        `${locale}.json`
+      );
+
+      if (fs.existsSync(localeFile)) {
+        try {
+          const localeTranslations = JSON.parse(
+            fs.readFileSync(localeFile, "utf-8")
+          );
+
+          // Get all existing keys in the file
+          const existingKeys = getAllKeys(localeTranslations);
+
+          // Debug: Log what keys we have
+          Logger.info(`All extracted keys: ${Array.from(allExtractedKeys).join(', ')}`);
+          Logger.info(`Existing keys in ${locale}.json: ${existingKeys.join(', ')}`);
+
+          // Find keys to remove (existing keys that are not in extracted keys)
+          const keysToRemove = existingKeys.filter(key => !allExtractedKeys.has(key));
+
+          Logger.info(`Keys to remove: ${keysToRemove.join(', ')}`);
+
+          // Remove unused keys
+          for (const keyToRemove of keysToRemove) {
+            removeKeyFromObject(localeTranslations, keyToRemove);
+            Logger.info(`Removed unused key: ${keyToRemove}`);
+          }
+
+          if (keysToRemove.length > 0) {
+            Logger.info(`Cleaned ${keysToRemove.length} unused keys from ${locale}.json`);
+          }
+
+          // Write the cleaned file back
+          fs.writeFileSync(
+            localeFile,
+            JSON.stringify(localeTranslations, null, 2)
+          );
+        } catch (error) {
+          Logger.error(
+            `Error cleaning JSON file for locale ${locale}: ${error}`
+          );
+        }
+      }
+    }
+  }
+
   // At the end of processing, show summary of duplicates if any
   const duplicatesFound = Array.from(duplicateKeyMap.entries()).filter(
     ([_, info]) => info.duplicateValues.size > 0
@@ -336,10 +453,10 @@ const extractTranslations = async (config: Config, options: DefaultOptions) => {
     for (const [messageKey, info] of duplicatesFound) {
       Logger.warn(
         `\nmessageKey: ${messageKey}\n` +
-          `Original value: "${info.value}"\n` +
-          `Different values found: ${Array.from(info.duplicateValues)
-            .map((v) => `"${v}"`)
-            .join(", ")}\n`
+        `Original value: "${info.value}"\n` +
+        `Different values found: ${Array.from(info.duplicateValues)
+          .map((v) => `"${v}"`)
+          .join(", ")}\n`
       );
     }
   }
