@@ -162,7 +162,7 @@ const extractTranslations = async (config: Config, options: DefaultOptions) => {
       const standardHookRegex = /([\w$]+)\s*\.\s*t\s*\(\s*['"`]([^'"`]+?)['"`]/g;
       // Flexible custom hook: t('key', ...optionalArgs..., 'message')
       // This regex matches the same quote at start/end and allows escaped quotes inside
-      const customHookRegex = /([\w$]+)\s*\(\s*(["'`])((?:\\\2|.)*?)\2\s*,\s*(?:\{[^}]*\}|[^,]+)?\s*,\s*(["'`])((?:\\\4|.)*?)\4\s*\)/g;
+      const customHookRegex = /t\s*\(\s*(["'`])((?:\\\1|.)*?)\1\s*,\s*(?:\{[^}]*\}|[^,]+)?\s*,\s*(["'`])((?:\\\3|.)*?)\3\s*\)/g;
       // Also support direct t('key') calls (for default/global namespace)
       const directTRegex = /\bt\s*\(\s*['"`]([^'"`]+?)['"`]/g;
 
@@ -172,12 +172,12 @@ const extractTranslations = async (config: Config, options: DefaultOptions) => {
       // Extract custom hook usage
       Logger.info(`Searching for custom hook pattern in file: ${file}`);
       while ((match = customHookRegex.exec(source)) !== null) {
-        const variableName = match[1];
-        const key = match[3].replace(new RegExp('\\' + match[2], 'g'), match[2]);
-        const message = match[5].replace(new RegExp('\\' + match[4], 'g'), match[4]);
+        const key = match[2].replace(new RegExp('\\' + match[1], 'g'), match[1]);
+        const message = match[4].replace(new RegExp('\\' + match[3], 'g'), match[3]);
         checkForDots(key);
-        const nameSpace = namespaceMap.get(variableName) ?? "";
-        Logger.info(`Found custom hook usage: variable=${variableName}, key=\"${key}\", message=\"${message}\", namespace=\"${nameSpace}\"`);
+        // For custom hook, the variable is always 't', so get its namespace directly
+        const nameSpace = namespaceMap.get('t') ?? "";
+        Logger.info(`Found custom hook usage: key=\"${key}\", message=\"${message}\", namespace=\"${nameSpace}\"`);
         batchTranslations.push({
           nameSpace,
           string: message,

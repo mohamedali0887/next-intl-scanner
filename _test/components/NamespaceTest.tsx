@@ -1,4 +1,5 @@
-import React from "react";
+//@ts-nocheck
+
 import { useTranslations } from "./TestWithHook";
 
 const Test = () => {
@@ -13,6 +14,7 @@ const Test = () => {
       <h1>{t("singleQuotes", {}, "single ' inside '")}</h1>
       <h1>{t("mixedQuotes", {}, 'mixed " and \' quotes')}</h1>
       <h1>{t("escapedQuotes", {}, "escaped \" and \' quotes")}</h1>
+
     </div>
   );
 };

@@ -5,7 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.6] - 2025-01-XX
+## [1.1.7] - 2025-07-09
+
+### Fixed
+- Fixed a bug where the scanner would not work with custom jsx elements
+
+
+
+
+## [1.1.6] - 2025-07-09
 
 ### Added
 - Enhanced custom hook extraction with robust quote handling
@@ -15,11 +23,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Custom hook namespace extraction now properly nests translations under their respective namespaces
 - Regex patterns now handle complex quote patterns in translation strings
+- **Fixed false positive regex matching** - extractor now only processes actual `t()` calls, eliminating false warnings about dots in non-translation strings
 - Improved extraction reliability for real-world translation scenarios
 
 ### Changed
 - Standardized on custom translation hook usage for consistent extraction
 - Updated test components to use only custom hooks for better maintainability
+- **Regex patterns now specifically target `t()` calls** instead of generic function calls, improving accuracy and performance
 
 ## [1.1.5]
 ### Fixed 
