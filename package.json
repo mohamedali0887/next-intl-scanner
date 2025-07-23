@@ -9,7 +9,9 @@
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "bin": "dist/cli.js",
+  "bin": {
+    "next-intl-scanner": "dist/cli.js"
+  },
   "scripts": {
     "build": "tsc && tsc-alias && cp src/index.d.ts dist/",
     "build:watch": "tsc && (concurrently \"tsc -w\" \"tsc-alias -w\")",

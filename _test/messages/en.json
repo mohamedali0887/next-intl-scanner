@@ -1,0 +1,105 @@
+{
+  "ClientOrderPage": {
+    "title": "title",
+    "description": "description",
+    "requestNo": "requestNo",
+    "orderId": "orderId",
+    "payment": {
+      "title": "title",
+      "amount": "amount",
+      "currency": "currency",
+      "methods": {
+        "title": "title",
+        "card": "card",
+        "bank": "bank",
+        "wallet": "wallet",
+        "credit": {
+          "title": "title",
+          "description": "description",
+          "visa": {
+            "title": "title",
+            "accepted": "accepted",
+            "secure": "secure"
+          },
+          "mastercard": {
+            "title": "title",
+            "accepted": "accepted",
+            "secure": "secure"
+          },
+          "amex": {
+            "title": "title",
+            "accepted": "accepted",
+            "secure": "secure"
+          }
+        },
+        "debit": {
+          "title": "title",
+          "description": "description"
+        }
+      }
+    },
+    "status": {
+      "title": "title",
+      "pending": "pending",
+      "completed": "completed",
+      "failed": "failed"
+    }
+  },
+  "UserProfile": {
+    "name": "name",
+    "email": "email",
+    "phone": "phone",
+    "settings": {
+      "title": "title",
+      "notifications": "notifications",
+      "language": "language",
+      "privacy": {
+        "title": "title",
+        "dataSharing": "dataSharing",
+        "cookies": "cookies",
+        "gdpr": "gdpr"
+      }
+    }
+  },
+  "jsxNamespace": {
+    "formattedMessageKey": "formatted string with a dot"
+  },
+  "anotherNamespace": {
+    "anotherMessageKey": "another namespace"
+  },
+  "common": {
+    "select-status": "select-status",
+    "all": "all",
+    "submit": "Submit",
+    "cancel": "Cancel"
+  },
+  "validation": {
+    "required-field": "Required Field"
+  },
+  "interview": {
+    "title": "Interview Title",
+    "description": "Interview Description"
+  },
+  "AdminInterviews": {
+    "admin-panel": "Admin Panel",
+    "settings": "Settings"
+  },
+  "customNamespace": {
+    "helloNamespace": "Hello Namespace!",
+    "dont": "Don't",
+    "dontQuotes": "double \" inside \"",
+    "singleQuotes": "single ' inside '",
+    "mixedQuotes": "mixed \" and ' quotes",
+    "escapedQuotes": "escaped \" and ' quotes"
+  },
+  "customHook": {
+    "testServerString": "Test For Server Hook",
+    "anErrorOccurredDuringAuthenticationPleaseTryAgainLaterOrContactSupport": "An error occurred during authentication, please try again later or contact support.",
+    "testKey": "Test Message",
+    "test2": "Don't"
+  },
+  "Hello Test!": "Hello Test!",
+  "Hello World!": "Hello World!",
+  "Insert text directly": "Insert text directly",
+  "Hello, {name}! You can use this tool to extract strings for {package}": "Hello, {name}! You can use this tool to extract strings for {package}"
+}
